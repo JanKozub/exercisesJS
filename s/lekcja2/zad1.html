@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>zad1</title>
+
+    <script src="../../jq.js"></script>
+    <script>
+        $(document).ready(function () {
+            let main = $("#main")
+            $("#createBt").on("click", function () {
+                var num = parseInt($("#list").val())
+
+                main.empty()
+
+                for (let i = 0; i < num; i++) {
+                    let addEl = $("<button class='addbtn'>dodaj dziecko</button>")
+                    let deleteEl = $("<button class='deletebtn'>usun element</button>>")
+
+
+                    let obj = "<div>" + "To jest div nr: " + (i + 1) + "" + "</div>"
+                    let btn = $(obj)
+                    btn.append(deleteEl)
+                    btn.append(addEl)
+
+                    btn.css("width", "300px")
+                        .css("height", "100px")
+                        .css("background-color", "blue")
+                        .css("margin", "20px")
+                        .css("color", "white")
+                        .css("text-align", "center")
+
+                    deleteEl.on("click", function () {
+                        let bool = confirm("czy usunac?")
+                        if (bool)
+                            btn.remove();
+                    })
+
+                    addEl.on("click", function () {
+                        let child = $("<div>")
+                        child.css("width", "50px")
+                            .css("height", "50px")
+                            .css("background-color", "green")
+                            .css("position", "relative")
+                            .css("left", "300px")
+                            .css("margin", "20px")
+                        .css("float", "right")
+                        child.on("click", function () {
+                            let bool = confirm("czy usunac?")
+                            if (bool)
+                                child.remove();
+                        })
+                        btn.append(child)
+                    })
+
+                    main.append(btn);
+                }
+            });
+
+            $("#deleteBt").on("click", function () {
+                main.empty()
+            });
+        });
+    </script>
+
+    <style>
+        #main {
+            width: 500px;
+            height: 500px;
+        }
+
+        .addbtn {
+            position: relative;
+            left: 30px;
+        }
+    </style>
+</head>
+<body>
+<button id="createBt">utworz divy</button>
+<button id="deleteBt">usun divy</button>
+<label>
+    <select id="list">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+    </select>
+</label>
+
+<div id="main"></div>
+</body>
+</html>
