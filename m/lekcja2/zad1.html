@@ -5,15 +5,15 @@
     <title>zad1</title>
 
     <script>
-        var input = prompt("podaj dna");
+        let input = prompt("podaj dna");
 
         document.write(input)
 
         makeSpace()
         input = input.toUpperCase();
 
-        var sliced = [];
-        var komp = [];
+        const sliced = [];
+        const komp = [];
 
         sliceInput();
 
@@ -58,7 +58,7 @@
         }
 
         function complementarityReplace(gen) {
-            var result = ""
+            let result = "";
             for (let t = 0; t < 3; t++) {
                 switch (gen.charAt(t)) {
                     case 'T':
@@ -100,8 +100,8 @@
         function mapSlicedAndSort() {
             const map = new Map();
             for (let o = 0; o < sliced.length; o++) {
-                var tester = sliced[o]
-                var counter = 0;
+                let tester = sliced[o]
+                let counter = 0;
                 for (let i = 0; i < sliced.length; i++) {
                     if (sliced[i] === tester) {
                         counter++
@@ -114,7 +114,7 @@
         }
 
         function printSorted() {
-            var color = ""
+            let color = ""
             for (let l = 0; l < sortedMap.size; l++) {
 
                 if (l % 5 === 0) {

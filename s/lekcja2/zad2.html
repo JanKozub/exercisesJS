@@ -11,7 +11,7 @@
         }
 
         #left {
-            width: 1920px;
+            width: 960px;
             height: 100vh;
             background: yellow;
             margin: 0;
@@ -23,7 +23,7 @@
             background: red;
             position: relative;
             top: -100vh;
-            left: 1920px;
+            left: 960px;
         }
 
         #right {
@@ -39,17 +39,17 @@
 
     <script src="../../jq.js"></script>
     <script>
-        var xm = 1920
         $(document).ready(function () {
             $(window).on('mousedown', function () {
                 $(window).on('mousemove', function (e) {
+                    let right = $("#right")
                     $("#middle").css("left", e.clientX - 20)
                     $("#left").css("width", e.clientX - 20)
-                    $("#right").css("left", e.clientX)
-                    $("#right").width(1920 + (1920 - e.clientX))
+                    right.css("left", e.clientX)
+                    right.width(1920 + (1920 - e.clientX))
                 })
             })
-            $(window).on('mouseup', function (e) {
+            $(window).on('mouseup', function () {
                 $(window).off("mousemove")
             })
 

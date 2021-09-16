@@ -57,7 +57,7 @@
                 for (let l = 0; l < (val - k); l++) {
                     document.write('<span style="color: white">X</span>');
                 }
-                for (var l = 0; l < (k * 2) - 1; l++) {
+                for (let l = 0; l < (k * 2) - 1; l++) {
                     document.write("X");
                 }
 
@@ -68,7 +68,7 @@
         function adD() {
             for (let k = 1; k <= val; k++) {
                 for (let l = 1; l <= k; l++) {
-                    document.write(l);
+                    document.write(l.toString());
                 }
                 document.write("<br>");
             }
