@@ -7,19 +7,111 @@
     <script src="../../jq.js"></script>
     <script>
         $(document).ready(function () {
+            let main = $("#main")
 
+            let idTable = []
+
+            genTable();
+
+            $("#start").on("click", function () {
+                if (idTable.length < 2)
+                    alert("zaznacz wiecej elementow")
+                else
+                    startGame()
+            })
+
+            function genTable() {
+                for (let i = 0; i < 5; i++) {
+                    for (let j = 0; j < 5; j++) {
+                        let block = $(`<div id="${(i * 5) + j}" class="block" style="left: ${j * 50}px; top: ${i * 50}px"></div>`)
+
+                        block.on("click", function () {
+
+                            block.css('background-color', 'green')
+                            idTable.push((i * 5) + j)
+                        })
+                        main.append(block)
+                    }
+                }
+            }
+
+            function startGame() {
+                idTable.sort(function (a, b) {
+                    return a - b;
+                });
+                console.log(idTable)
+
+                let counterB = 0;
+                let counterY = 0;
+                let sw = true;
+
+                setBPos(counterB)
+                setYPos(counterY)
+
+                $("#next").on("click", function () {
+                    if (sw) {
+                        counterB++;
+                        setBPos(counterB)
+                    } else {
+                        counterY++;
+                        setYPos(counterY)
+                    }
+                    sw = !sw;
+                    console.log(counterB)
+                })
+            }
+
+            function setBPos(id) {
+                $(`#${idTable[id]}`).append($("#bCircle"))
+            }
+
+            function setYPos(id) {
+                $(`#${idTable[id]}`).append($("#bCircle"))
+                $(`#${idTable[idTable.length - id - 1]}`).append($("#yCircle"))
+            }
         })
     </script>
 
     <style>
-        td {
-            border: black 2px solid;
+        .block {
+            width: 50px;
+            height: 50px;
+            background-color: grey;
+            border: black solid 2px;
+            position: absolute;
+            cursor: pointer;
+        }
+
+        #main {
+            position: absolute;
+            left: 200px;
+            top: 200px;
+        }
+
+        .circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+        }
+
+        #bCircle {
+            background-color: blue;
+        }
+
+        #yCircle {
+            background-color: yellow;
         }
     </style>
 </head>
 <body>
-<button id="createTb">Utworz tabele</button>
+<button id="start">Start</button>
+<button id="next">Next</button>
+<button id="reset">Start</button>
 
 <div id="main"></div>
+
+<div id="bCircle" class="circle"></div>
+<div id="yCircle" class="circle"></div>
+
 </body>
 </html>
