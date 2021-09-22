@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>zad2</title>
+
+    <script>
+    let text = "ciekawe czy uda ci sie to zrobic      "
+    window.onload = function () {
+        let elem = document.getElementById("elem")
+        let counter = 0;
+        let currentlyDisplayed;
+        setInterval(function () {
+            let end = 29 + counter;
+            currentlyDisplayed = ""
+            if (end < text.length) {
+                currentlyDisplayed = text.substring(counter, 27 + counter)
+            } else {
+                text = text + text
+                text.substring(0, counter - 1)
+            }
+
+            counter++;
+            if (currentlyDisplayed !== "")
+                elem.setAttribute("value", currentlyDisplayed)
+        }, 200)
+        console.log(text.length)
+    }
+    </script>
+</head>
+<body>
+<label>
+    <input value="" id="elem">
+</label>
+</body>
+</html>

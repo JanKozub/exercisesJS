@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>zad1</title>
+
+    <script>
+        window.onload = function () {
+            let logo = document.getElementById("logo")
+            let size = 500;
+            let mode = false
+            setInterval(function () {
+                if (size === 100)
+                    mode = true;
+
+                if (size === 550)
+                    mode = false;
+
+                if (mode)
+                    size = size + 50
+                else
+                    size = size - 50
+                logo.setAttribute("width", size)
+            }, 100)
+        }
+    </script>
+</head>
+<body>
+<img id="logo" src="interia_logo.jpg" alt="logo" width="500px"/>
+</body>
+</html>
