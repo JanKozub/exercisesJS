@@ -3,34 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <title>zad4</title>
-
     <script>
-
         const R = 200
         window.onload = function () {
-            let circle = document.getElementById("circle")
-            let x;
-            let y;
+            let circle = document.getElementById("rat")
             let angle = 0
             setInterval(function () {
-                y = R * Math.sin(angle)
-                x = R * Math.cos(angle)
+                let x = R * Math.cos(degToRad(angle))
+                let y = R * Math.sin(degToRad(angle))
 
-                circle.setAttribute("left", x)
-                circle.setAttribute("top", y)
+                circle.style.left = 100 + (x - 20) + "px"
+                circle.style.top = 100 + (y - 20) + "px"
 
                 angle++
-            }, 500)
-            console.log(Math.sin(degToRad(90)))
+            }, 10)
         }
 
         function degToRad(deg) {
             return (deg * Math.PI) / 180
         }
     </script>
+
+    <style>
+        #main {
+            width: 400px;
+            height: 400px;
+            margin: auto;
+            position: relative;
+            top: 200px;
+        }
+
+        #rat {
+            background-color: blue;
+            width: 200px;
+            height: 200px;
+            position: relative;
+        }
+    </style>
 </head>
 <body>
-
-<div id="circle" style="background-color: blue; border-radius: 40px; width: 40px; height: 40px; position: relative"></div>
+<div id="main">
+    <img src="szczur.jpg" alt="szczur" id="rat"/>
+</div>
 </body>
 </html>

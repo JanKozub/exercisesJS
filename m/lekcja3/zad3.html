@@ -22,20 +22,18 @@
 
             let counter = 0;
             let value = ""
-            let isFilled = false
             setInterval(function () {
                 value = texts[counter] + "\n" + value;
                 counter++;
 
-                if (counter > 9) {
+                if (counter > 9)
                     counter = 0;
-                }
 
                 if (value.length > 189)
                     value = value.substring(0, 189)
 
                 area.value = value;
-            }, 300)
+            }, 200)
 
             console.log(area)
         }
