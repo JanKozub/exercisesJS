@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Step1</title>
+
+    <style>
+        td {
+            border: black 1px solid;
+        }
+
+        tr {
+            height: 40px;
+            border: black 1px solid;
+        }
+
+        th {
+            width: 40px;
+            border: black 1px solid;
+        }
+
+    </style>
+    <script>
+        const VERTICAL = true;
+        const boardSize = 10;
+
+        window.onload = function () {
+
+            let ships = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1]
+
+            let board = Array.from(Array(boardSize), () => new Array(boardSize))
+
+            if (boardSize >= 10) {
+                board = clearBoard(board);
+
+                renderBoard(board)
+
+
+                for (let i = 0; i < 10; i++) {
+                    let result = "0"
+                    do {
+                        result = placeShip(board, ships[i], drawDirection(), drawCoordinate(), drawCoordinate())
+                    } while (result !== "0");
+                }
+            }
+        }
+
+        function drawCoordinate() {
+            return Math.floor((Math.random() * 10));
+        }
+
+        function drawDirection() {
+            return Math.floor((Math.random() * 10) + 1) > 5;
+        }
+
+        function clearBoard(arr) {
+            for (let i = 0; i < arr.length; i++) {
+                for (let j = 0; j < arr.length; j++) {
+                    arr[i][j] = 0;
+                }
+            }
+            return arr;
+        }
+
+        function renderBoard() {
+            for (let i = 0; i < boardSize; i++) {
+                let newTr = document.createElement('tr')
+                for (let k = 0; k < boardSize; k++) {
+                    let newTh = document.createElement("th")
+                    newTh.id = i + "x" + k;
+                    newTr.appendChild(newTh)
+                }
+                document.getElementById("playing-board").appendChild(newTr);
+            }
+        }
+
+        function placeShip(board, size, dir, x, y) {
+            let result = "0";
+            if (doesShipFit(x, y, size, dir)) {
+                result = "1";
+            }
+
+            if (result !== "0")
+                return result;
+
+            if (dir === VERTICAL) {
+                result = isPositionValid(x, y, size + 1, 2)
+            } else {
+                result = isPositionValid(x, y, 2, size + 1)
+            }
+
+            if (result !== "0")
+                return result;
+
+            renderShip(x, y, dir, size);
+            return result;
+        }
+
+        function doesShipFit(x, y, size, dir) {
+            if (dir === VERTICAL) {
+                return x + size > boardSize;
+            } else {
+                return y + size > boardSize;
+            }
+        }
+
+        function isPositionValid(x, y, size1, size2) {
+            for (let i = -1; i < size1; i++) {
+                for (let k = -1; k < size2; k++) {
+                    if (x + i < 0 || y + k < 0)
+                        continue;
+
+                    if (x + i >= boardSize || y + k >= boardSize)
+                        return "1"
+
+                    if (getStateOfField(x + i, y + k))
+                        return "2";
+                }
+            }
+            return "0";
+        }
+
+        function renderShip(x, y, dir, size) {
+            for (let i = 0; i < size; i++) {
+                if (dir === VERTICAL) {
+                    setFieldState(x + i, y, true);
+                } else {
+                    setFieldState(x, y + i, true);
+                }
+            }
+        }
+
+        function setFieldState(x, y, state) {
+            let obj = document.getElementById(x + "x" + y).style;
+            if (state) {
+                obj.backgroundColor = "black";
+            } else {
+                obj.backgroundColor = "white";
+            }
+        }
+
+        function getStateOfField(x, y) {
+            return document.getElementById(x + "x" + y).style.backgroundColor === "black"
+        }
+    </script>
+</head>
+<body>
+<table id="playing-board">
+
+</table>
+</body>
+</html>
