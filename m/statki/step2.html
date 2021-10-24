@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Step2</title>
+
+    <style>
+        td {
+            border: black 1px solid;
+        }
+
+        tr {
+            height: 40px;
+            border: black 1px solid;
+        }
+
+        th {
+            width: 40px;
+            border: black 1px solid;
+        }
+
+        #playing-board {
+            position: relative;
+            left: 400px;
+        }
+
+        #ships-list {
+            position: absolute;
+            left: 100px;
+            top: 8px;
+        }
+    </style>
+
+    <script>
+        const VERTICAL = true;
+        const boardSize = 10;
+        let selectedShip = 0;
+        let board = Array.from(Array(boardSize), () => new Array(boardSize))
+        let ships = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
+        let placedShips = [];
+        let shipDir = VERTICAL;
+
+        let x = -1;
+        let y = -1
+
+        window.onload = function () {
+            if (boardSize >= 10) {
+                setBoardIds();
+
+                renderBoard();
+
+                renderShipList();
+            }
+        }
+
+        function setBoardIds() {
+            for (let i = 0; i < board.length; i++) {
+                for (let j = 0; j < board.length; j++) {
+                    board[i][j] = 0;
+                }
+            }
+            return board;
+        }
+
+        function clearBoard() {
+            for (let x = 0; x < board.length; x++) {
+                for (let y = 0; y < board.length; y++) {
+                    if (!getStateOfField(x, y))
+                        setFieldState(x, y, "white");
+                }
+            }
+        }
+
+        function onMouseOver(x, y) {
+            if (shipDir === VERTICAL) {
+                if (x + ships[selectedShip] > boardSize)
+                    x = x - (x + ships[selectedShip] - boardSize)
+            } else {
+                if (y + ships[selectedShip] > boardSize)
+                    y = y - (y + ships[selectedShip] - boardSize)
+            }
+
+            clearBoard();
+            if (isPositionValid() === "0")
+                renderShip(x, y, shipDir, ships[selectedShip], "green")
+            else
+                renderShip(x, y, shipDir, ships[selectedShip], "red")
+
+        }
+
+        function renderBoard() {
+            let board = document.getElementById('playing-board');
+            for (let x = 0; x < boardSize; x++) {
+                let newTr = document.createElement('tr')
+                for (let y = 0; y < boardSize; y++) {
+                    let newTh = document.createElement("th")
+                    newTh.id = x + "x" + y;
+                    newTh.onmouseover = () => onMouseOver(x,y);
+
+                    newTh.addEventListener('contextmenu', function (ev) {
+                        ev.preventDefault();
+                        shipDir = !shipDir;
+
+                        onMouseOver(x, y);
+                    }, false);
+
+                    newTh.onclick = () => {
+                        if (isPositionValid() === "0") {
+                            renderShip(this.x, this.y, shipDir, ships[selectedShip], "black")
+                        }
+                    }
+
+                    newTr.appendChild(newTh)
+                }
+                board.appendChild(newTr);
+            }
+            board.onmouseleave = () => clearBoard();
+        }
+
+        function renderShipList() {
+            for (let s = 0; s < ships.length; s++) {
+                let newShip = document.createElement('table');
+                newShip.id = "ship=" + s;
+                newShip.style.marginBottom = "20px";
+                let newTr = document.createElement('tr');
+
+                if (s === selectedShip)
+                    newTr.style.backgroundColor = "blue";
+
+                newShip.onmouseover = function () {
+                    if (selectedShip !== s)
+                        newTr.style.backgroundColor = "red";
+                }
+
+                newShip.onmouseleave = function () {
+                    if (selectedShip !== s)
+                        newTr.style.backgroundColor = "white";
+                }
+
+                newShip.onclick = function () {
+                    newTr.style.backgroundColor = "blue";
+                    selectedShip = s;
+                    clearShips(selectedShip);
+                }
+
+                for (let i = 0; i < ships[s]; i++) {
+                    newTr.appendChild(document.createElement('th'));
+                }
+                newShip.appendChild(newTr);
+                document.getElementById('ships-list').appendChild(newShip);
+            }
+        }
+
+        function clearShips(ship) {
+            for (let i = 0; i < ships.length; i++) {
+                if (i !== ship) {
+                    document.getElementById("ship=" + i).getElementsByTagName('tr')[0].style.backgroundColor = "white";
+                }
+            }
+        }
+
+        function isPositionValid() {
+            let result;
+
+            if (shipDir === VERTICAL) {
+                if (x + ships[selectedShip] > boardSize)
+                    x = x - (x + ships[selectedShip] - boardSize)
+
+                result = checkPositionsAround(x, y, ships[selectedShip] + 1, 2)
+            } else {
+                if (y + ships[selectedShip] > boardSize)
+                    y = y - (y + ships[selectedShip] - boardSize)
+
+                result = checkPositionsAround(x, y, 2, ships[selectedShip] + 1)
+            }
+            return result;
+        }
+
+        function checkPositionsAround(x, y, size1, size2) {
+            for (let i = -1; i < size1; i++) {
+                for (let k = -1; k < size2; k++) {
+                    if (x + i < 0 || y + k < 0)
+                        continue;
+
+                    if (x + i > boardSize || y + k > boardSize) {
+                        return "1"
+                    }
+
+                    if (x + i < 10 && y + k < 10 && getStateOfField(x + i, y + k))
+                        return "2";
+                }
+            }
+            return "0";
+        }
+
+        function renderShip(x, y, dir, size, color) {
+            for (let i = 0; i < size; i++) {
+                if (dir === VERTICAL) {
+                    setFieldState(x + i, y, color);
+                } else {
+                    setFieldState(x, y + i, color);
+                }
+            }
+        }
+
+        function setFieldState(x, y, color) {
+            document.getElementById(x + "x" + y).style.backgroundColor = color;
+        }
+
+        function getStateOfField(x, y) {
+            return document.getElementById(x + "x" + y).style.backgroundColor === "black";
+        }
+    </script>
+</head>
+<body>
+<div id="ships-list">
+
+</div>
+
+<table id="playing-board">
+
+</table>
+</body>
+</html>
