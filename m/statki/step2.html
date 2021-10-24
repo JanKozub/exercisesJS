@@ -73,6 +73,14 @@
             }
         }
 
+        function placeShip(x, y) {
+            if (isPositionValid(x, y) === "0") {
+                renderShip(x, y, shipDir, ships[selectedShip], "black");
+                ships.splice(selectedShip, 1);
+                renderShipList();
+            }
+        }
+
         function renderBoard() {
             let board = document.getElementById('playing-board');
             for (let x = 0; x < boardSize; x++) {
@@ -89,13 +97,7 @@
                         onMouseOver(x, y);
                     }, false);
 
-                    newTh.onclick = () => {
-                        if (isPositionValid(x, y) === "0") {
-                            renderShip(x, y, shipDir, ships[selectedShip], "black");
-                            ships.splice(selectedShip, 1);
-                            renderShipList();
-                        }
-                    }
+                    newTh.onclick = () => placeShip(x, y);
 
                     newTr.appendChild(newTh)
                 }
@@ -134,17 +136,17 @@
                 if (s === selectedShip)
                     newTr.style.backgroundColor = "blue";
 
-                newShip.onmouseover = function () {
+                newShip.onmouseover = () => {
                     if (selectedShip !== s)
                         newTr.style.backgroundColor = "red";
                 }
 
-                newShip.onmouseleave = function () {
+                newShip.onmouseleave = () => {
                     if (selectedShip !== s)
                         newTr.style.backgroundColor = "white";
                 }
 
-                newShip.onclick = function () {
+                newShip.onclick = () => {
                     newTr.style.backgroundColor = "blue";
                     selectedShip = s;
                     clearShips(selectedShip);
