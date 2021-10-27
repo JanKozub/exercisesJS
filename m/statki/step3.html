@@ -24,6 +24,12 @@
             left: 350px;
         }
 
+        #computers-board {
+            position: absolute;
+            left: 900px;
+            top: 10px;
+        }
+
         #ships-list {
             position: absolute;
             left: 100px;
@@ -33,22 +39,25 @@
 
     <script>
         const VERTICAL = true;
+        const PLAYER = "p";
+        const COMPUTER = "c";
         const boardSize = 10;
-        let selectedShip = 0;
-        let boardArray = Array.from(Array(boardSize), () => new Array(boardSize))
-        let ships = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
-        let shipDir = VERTICAL;
 
-        let x = -1;
-        let y = -1
+        let selectedShip = 0;
+        let playerBoardArray = Array.from(Array(boardSize), () => new Array(boardSize))
+        let computerBoardArray = Array.from(Array(boardSize), () => new Array(boardSize))
+        let playerShips = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
+        let shipDir = VERTICAL;
 
         window.onload = function () {
             if (boardSize >= 10) {
-                boardArray = fillArrayWithZeros(boardArray);
+                playerBoardArray = fillArrayWithZeros(playerBoardArray);
 
-                renderBoard();
+                renderPlayerBoard();
 
                 renderShipList();
+
+                generateBoard();
             }
         }
 
@@ -64,31 +73,37 @@
         function clearBoard() {
             for (let x = 0; x < boardSize; x++) {
                 for (let y = 0; y < boardSize; y++) {
-                    if (boardArray[x][y] === 1) {
-                        setFieldState(x, y, "blue")
+                    if (playerBoardArray[x][y] === 1) {
+                        setFieldState(PLAYER, x, y, "blue")
                     } else {
-                        setFieldState(x, y, "white")
+                        setFieldState(PLAYER, x, y, "white")
                     }
                 }
             }
         }
 
-        function placeShip(x, y) {
-            if (isPositionValid(x, y) === "0") {
-                renderShip(x, y, shipDir, ships[selectedShip], "blue");
-                ships.splice(selectedShip, 1);
+        function placeShip(board, ship, x, y, direction) {
+            if (!isPositionValid(getBoardArr(board), ship, x, y, direction))
+                return false;
+
+            if (board === PLAYER) {
+                renderShip(board, x, y, direction, ship, "blue");
+                playerShips.splice(selectedShip, 1);
                 selectedShip = -1;
                 renderShipList();
+            } else {
+                renderShip(board, x, y, direction, ship, "black");
             }
+            return true;
         }
 
-        function renderBoard() {
+        function renderPlayerBoard() {
             let board = document.getElementById('players-board');
             for (let x = 0; x < boardSize; x++) {
                 let newTr = document.createElement('tr')
                 for (let y = 0; y < boardSize; y++) {
-                    let newTh = document.createElement("th")
-                    newTh.id = x + "x" + y;
+                    let newTh = document.createElement('th')
+                    newTh.id = PLAYER + "=" + x + "x" + y;
                     newTh.onmouseover = () => onMouseOver(x, y);
 
                     newTh.addEventListener('contextmenu', function (ev) {
@@ -98,7 +113,7 @@
                         onMouseOver(x, y);
                     }, false);
 
-                    newTh.onclick = () => placeShip(x, y);
+                    newTh.onclick = () => placeShip(PLAYER, playerShips[selectedShip], x, y, shipDir);
 
                     newTr.appendChild(newTh)
                 }
@@ -110,17 +125,17 @@
         function onMouseOver(x, y) {
             clearBoard();
             if (shipDir === VERTICAL) {
-                if (x + ships[selectedShip] > boardSize)
-                    x = x - (x + ships[selectedShip] - boardSize)
+                if (x + playerShips[selectedShip] > boardSize)
+                    x = x - (x + playerShips[selectedShip] - boardSize)
             } else {
-                if (y + ships[selectedShip] > boardSize)
-                    y = y - (y + ships[selectedShip] - boardSize)
+                if (y + playerShips[selectedShip] > boardSize)
+                    y = y - (y + playerShips[selectedShip] - boardSize)
             }
 
-            if (isPositionValid(x, y) === "0")
-                renderShip(x, y, shipDir, ships[selectedShip], "green")
+            if (isPositionValid(playerBoardArray, playerShips[selectedShip], x, y, shipDir))
+                renderShip(PLAYER, x, y, shipDir, playerShips[selectedShip], "green")
             else
-                renderShip(x, y, shipDir, ships[selectedShip], "red")
+                renderShip(PLAYER, x, y, shipDir, playerShips[selectedShip], "red")
 
         }
 
@@ -128,7 +143,7 @@
             let shipsList = document.getElementById('ships-list');
             shipsList.innerHTML = '';
 
-            for (let s = 0; s < ships.length; s++) {
+            for (let s = 0; s < playerShips.length; s++) {
                 let newShip = document.createElement('table');
                 newShip.id = "ship=" + s;
                 newShip.style.marginBottom = "20px";
@@ -153,7 +168,7 @@
                     clearShips(selectedShip);
                 }
 
-                for (let i = 0; i < ships[s]; i++) {
+                for (let i = 0; i < playerShips[s]; i++) {
                     newTr.appendChild(document.createElement('th'));
                 }
                 newShip.appendChild(newTr);
@@ -162,42 +177,39 @@
         }
 
         function clearShips(ship) {
-            for (let i = 0; i < ships.length; i++) {
+            for (let i = 0; i < playerShips.length; i++) {
                 if (i !== ship) {
                     document.getElementById("ship=" + i).getElementsByTagName('tr')[0].style.backgroundColor = "white";
                 }
             }
         }
 
-        function isPositionValid(x, y) {
-            let result;
-
-            if (shipDir === VERTICAL) {
-                result = checkPositionsAround(x, y, ships[selectedShip] + 1, 2)
+        function isPositionValid(boardArr, ship, x, y, dir) {
+            if (dir === VERTICAL) {
+                return checkPositionsAround(boardArr, x, y, ship + 1, 2)
             } else {
-                result = checkPositionsAround(x, y, 2, ships[selectedShip] + 1)
+                return checkPositionsAround(boardArr, x, y, 2, ship + 1)
             }
-            return result;
         }
 
-        function checkPositionsAround(x, y, size1, size2) {
+        function checkPositionsAround(boardArr, x, y, size1, size2) {
             for (let i = -1; i < size1; i++) {
                 for (let k = -1; k < size2; k++) {
                     if (x + i < 0 || y + k < 0)
                         continue;
 
                     if (x + i > boardSize || y + k > boardSize) {
-                        return "1"
+                        return false;
                     }
 
-                    if (x + i < 10 && y + k < 10 && getStateOfField(boardArray, x + i, y + k))
-                        return "2";
+                    if (x + i < 10 && y + k < 10 && getStateOfField(boardArr, x + i, y + k))
+                        return false;
                 }
             }
-            return "0";
+            return true;
         }
 
-        function renderShip(x, y, dir, size, color) {
+        function renderShip(board, x, y, dir, size, color) {
             for (let i = 0; i < size; i++) {
                 let tempX = x;
                 let tempY = y;
@@ -206,43 +218,27 @@
                 else
                     tempY = y + i
 
-                setFieldState(tempX, tempY, color);
+                setFieldState(board, tempX, tempY, color);
                 if (color === "blue")
-                    boardArray[tempX][tempY] = 1;
+                    playerBoardArray[tempX][tempY] = 1;
+                else
+                    computerBoardArray[tempX][tempY] = 1;
             }
         }
-
-        function setFieldState(x, y, color) {
-            document.getElementById(x + "x" + y).style.backgroundColor = color;
-        }
-
-        function getStateOfField(array, x, y) {
-            return array[x][y] === 1;
-        }
-
-
-
-
-
-
-
 
         function generateBoard() {
             let ships = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1]
 
-            let board = Array.from(Array(boardSize), () => new Array(boardSize))
-
             if (boardSize >= 10) {
-                board = fillArrayWithZeros(board)
+                computerBoardArray = fillArrayWithZeros(computerBoardArray);
 
-                renderComputerBoard(board)
-
+                renderComputerBoard(computerBoardArray)
 
                 for (let i = 0; i < 10; i++) {
-                    let result = "0"
+                    let result;
                     do {
-                        result = placeShip(board, ships[i], drawDirection(), drawCoordinate(), drawCoordinate())
-                    } while (result !== "0");
+                        result = placeShip(COMPUTER, ships[i], drawCoordinate(), drawCoordinate(), drawDirection())
+                    } while (!result);
                 }
             }
         }
@@ -252,64 +248,30 @@
                 let newTr = document.createElement('tr')
                 for (let k = 0; k < boardSize; k++) {
                     let newTh = document.createElement("th")
-                    newTh.id = i + "x" + k;
+                    newTh.id = COMPUTER + "=" + i + "x" + k;
                     newTr.appendChild(newTh)
                 }
                 document.getElementById("computers-board").appendChild(newTr);
             }
         }
 
-        function placeShip(board, size, dir, x, y) {
-            let result = "0";
-            if (doesShipFit(x, y, size, dir)) {
-                result = "1";
-            }
-
-            if (result !== "0")
-                return result;
-
-            if (dir === VERTICAL) {
-                result = isPositionValid(x, y, size + 1, 2)
-            } else {
-                result = isPositionValid(x, y, 2, size + 1)
-            }
-
-            if (result !== "0")
-                return result;
-
-            renderShip(x, y, dir, size);
-            return result;
+        function setFieldState(board, x, y, color) {
+            document.getElementById(board + "=" + x + "x" + y).style.backgroundColor = color;
         }
 
-        function doesShipFit(x, y, size, dir) {
-            if (dir === VERTICAL) {
-                return x + size > boardSize;
-            } else {
-                return y + size > boardSize;
-            }
+        function getStateOfField(array, x, y) {
+            return array[x][y] === 1;
         }
 
-        function renderShip(x, y, dir, size) {
-            for (let i = 0; i < size; i++) {
-                if (dir === VERTICAL) {
-                    setFieldState(x + i, y, true);
-                } else {
-                    setFieldState(x, y + i, true);
-                }
-            }
-        }
-
-        function setFieldState(x, y, state) {
-            let obj = document.getElementById(x + "x" + y).style;
-            if (state) {
-                obj.backgroundColor = "black";
-            } else {
-                obj.backgroundColor = "white";
-            }
+        function getBoardArr(board) {
+            if (board === PLAYER)
+                return playerBoardArray;
+            else
+                return computerBoardArray;
         }
 
         function drawCoordinate() {
-            return Math.floor((Math.random() * 10));
+            return Math.floor((Math.random() * 9));
         }
 
         function drawDirection() {
