@@ -22,18 +22,41 @@
         #players-board {
             position: relative;
             left: 350px;
+            top: 50px;
         }
 
         #computers-board {
             position: absolute;
             left: 900px;
-            top: 10px;
+            top: 58px;
         }
 
         #ships-list {
             position: absolute;
             left: 100px;
-            top: 8px;
+            top: 58px;
+        }
+
+        #player-label {
+            position: absolute;
+            left: 520px;
+            top: -30px;
+            font-size: 40px;
+        }
+
+        #computer-label {
+            position: absolute;
+            left: 1020px;
+            top: -30px;
+            font-size: 40px;
+        }
+
+        #start-button {
+            width: 400px;
+            height: 100px;
+            position: absolute;
+            top: 600px;
+            left: 600px;
         }
     </style>
 
@@ -281,16 +304,13 @@
     </script>
 </head>
 <body>
-<div id="ships-list">
+<p id="player-label">GRACZ</p>
+<div id="ships-list"></div>
+<table id="players-board"></table>
 
-</div>
+<p id="computer-label">KOMPUTER</p>
+<table id="computers-board"></table>
 
-<table id="players-board">
-
-</table>
-
-<table id="computers-board">
-
-</table>
+<button id="start-button">Start</button>
 </body>
 </html>
