@@ -19,7 +19,7 @@
             border: black 1px solid;
         }
 
-        #players-board {
+        #player-board {
             position: relative;
             left: 350px;
             top: 50px;
@@ -58,6 +58,14 @@
             top: 600px;
             left: 600px;
         }
+
+        .dot {
+            height: 10px;
+            width: 10px;
+            background-color: black;
+            border-radius: 50%;
+            display: inline-block;
+        }
     </style>
 
     <script>
@@ -67,20 +75,40 @@
         const boardSize = 10;
 
         let selectedShip = 0;
-        let playerBoardArray = Array.from(Array(boardSize), () => new Array(boardSize))
-        let computerBoardArray = Array.from(Array(boardSize), () => new Array(boardSize))
+        let playerBoardArray = Array.from(Array(boardSize), () => new Array(boardSize));
+        let computerBoardArray = Array.from(Array(boardSize), () => new Array(boardSize));
         let playerShips = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
+        let destroyedShips = [];
         let shipDir = VERTICAL;
+
+        let scores = []
+
+        let isGameStarted = false;
+        let lockShoot = false;
 
         window.onload = function () {
             if (boardSize >= 10) {
-                playerBoardArray = fillArrayWithZeros(playerBoardArray);
+                restartGame();
 
                 renderPlayerBoard();
+                renderComputerBoard();
 
-                renderShipList();
 
-                generateBoard();
+                document.getElementById("start-button").onclick = () => {
+                    if (playerShips.length === 0 && !isGameStarted) {
+                        generateComputerBoard();
+                        isGameStarted = true;
+                    } else {
+                        if (!isGameStarted)
+                            alert("Umiesc wszystkie statki")
+                    }
+                }
+
+                document.getElementById("player-board").onclick = () => {
+                    if (isGameStarted) {
+                        alert("To nie twoja plansza!")
+                    }
+                }
             }
         }
 
@@ -93,35 +121,45 @@
             return array;
         }
 
-        function clearBoard() {
+        function clearBoard(array) {
             for (let x = 0; x < boardSize; x++) {
                 for (let y = 0; y < boardSize; y++) {
-                    if (playerBoardArray[x][y] === 1) {
-                        setFieldState(PLAYER, x, y, "blue")
-                    } else {
-                        setFieldState(PLAYER, x, y, "white")
+                    let color = "white"
+                    if (array[x][y] === 1) {
+                        color = "blue"
+                    }
+
+                    if (document.getElementById("c=0x0") !== null
+                        && document.getElementById("p=0x0") !== null) {
+                        if (array === computerBoardArray) {
+                            setFieldState(COMPUTER, x, y, color)
+                            document.getElementById("c=" + x + "x" + y).innerText = ""
+                        } else {
+                            setFieldState(PLAYER, x, y, color)
+                        }
                     }
                 }
             }
         }
 
-        function placeShip(board, ship, x, y, direction) {
-            if (!isPositionValid(getBoardArr(board), ship, x, y, direction))
-                return false;
+        function generateComputerBoard() {
+            let ships = [40, 30, 31, 20, 21, 22, 10, 11, 12, 13]
 
-            if (board === PLAYER) {
-                renderShip(board, x, y, direction, ship, "blue");
-                playerShips.splice(selectedShip, 1);
-                selectedShip = -1;
-                renderShipList();
-            } else {
-                renderShip(board, x, y, direction, ship, "black");
+            fillArrayWithZeros(computerBoardArray);
+            clearBoard(computerBoardArray);
+
+            if (boardSize >= 10) {
+                for (let i = 0; i < 10; i++) {
+                    let result;
+                    do {
+                        result = placeShip(COMPUTER, ships[i], drawCoordinate(), drawCoordinate(), drawDirection())
+                    } while (!result);
+                }
             }
-            return true;
         }
 
         function renderPlayerBoard() {
-            let board = document.getElementById('players-board');
+            let board = document.getElementById('player-board');
             for (let x = 0; x < boardSize; x++) {
                 let newTr = document.createElement('tr')
                 for (let y = 0; y < boardSize; y++) {
@@ -142,11 +180,104 @@
                 }
                 board.appendChild(newTr);
             }
-            board.onmouseleave = () => clearBoard();
+            board.onmouseleave = () => clearBoard(playerBoardArray);
+        }
+
+        function placeShip(board, id, x, y, direction) {
+            let size = id
+            if (board === COMPUTER)
+                size = Math.floor(id / 10)
+
+            if (!isPositionValid(getBoardArr(board), size, x, y, direction))
+                return false;
+
+            if (board === PLAYER) {
+                renderShip(board, x, y, direction, size, size, "blue");
+                playerShips.splice(selectedShip, 1);
+                selectedShip = 0;
+                if (playerShips.length !== -1) {
+                    renderShipList();
+                }
+            } else {
+                renderShip(board, x, y, direction, size, id, "black");
+            }
+            return true;
+        }
+
+        function renderComputerBoard() {
+            for (let x = 0; x < boardSize; x++) {
+                let newTr = document.createElement('tr')
+                for (let y = 0; y < boardSize; y++) {
+                    let newTh = document.createElement("th")
+                    newTh.id = COMPUTER + "=" + x + "x" + y;
+                    newTh.onclick = () => {
+                        if (isGameStarted && !lockShoot && computerBoardArray[x][y] >= 0) {
+                            if (!isGameEnded()) {
+                                lockShoot = true;
+                                if (computerBoardArray[x][y] !== 0) {
+                                    newTh.innerHTML = "✖";
+                                    newTh.style.backgroundColor = "red";
+                                    let value = computerBoardArray[x][y];
+                                    scores.push(value)
+                                    isShipCompleted(x, y);
+                                    computerBoardArray[x][y] = value * -1;
+                                } else {
+                                    newTh.innerHTML = "<span class=\"dot\"></span>";
+                                    computerBoardArray[x][y] = -5;
+                                }
+
+                                if (isGameEnded()) {
+                                    alert("WYGRALES!!!")
+
+                                    restartGame();
+                                } else {
+                                    setTimeout(() => computerShoot(), 200);
+                                }
+                            }
+                        }
+                    }
+                    newTr.appendChild(newTh)
+                }
+                document.getElementById("computers-board").appendChild(newTr);
+            }
+        }
+
+        function isGameEnded() {
+            return destroyedShips.length === 10;
+        }
+
+        function restartGame() {
+            playerBoardArray = fillArrayWithZeros(playerBoardArray);
+            computerBoardArray = fillArrayWithZeros(computerBoardArray);
+
+            renderShipList();
+
+            clearBoard(playerBoardArray)
+            clearBoard(computerBoardArray)
+        }
+
+        function isShipCompleted(x, y) {
+            let num = checkPositionsAround(computerBoardArray, x, y, 2, 2);
+            if (howManyElementsArrayContains(scores, num) === Math.floor(num / 10)) {
+                destroyedShips.push(num)
+                console.log(destroyedShips)
+            }
+        }
+
+        function computerShoot() {
+            let x;
+            let y;
+            do {
+                x = drawCoordinate();
+                y = drawCoordinate();
+            } while (playerBoardArray[x][y] === 1)
+
+            setFieldState(PLAYER, x, y, "red")
+            lockShoot = false;
         }
 
         function onMouseOver(x, y) {
-            clearBoard();
+            clearBoard(playerBoardArray);
             if (shipDir === VERTICAL) {
                 if (x + playerShips[selectedShip] > boardSize)
                     x = x - (x + playerShips[selectedShip] - boardSize)
@@ -156,9 +287,9 @@
             }
 
             if (isPositionValid(playerBoardArray, playerShips[selectedShip], x, y, shipDir))
-                renderShip(PLAYER, x, y, shipDir, playerShips[selectedShip], "green")
+                renderShip(PLAYER, x, y, shipDir, playerShips[selectedShip], 0, "green")
             else
-                renderShip(PLAYER, x, y, shipDir, playerShips[selectedShip], "red")
+                renderShip(PLAYER, x, y, shipDir, playerShips[selectedShip], 0, "red")
 
         }
 
@@ -209,9 +340,9 @@
 
         function isPositionValid(boardArr, ship, x, y, dir) {
             if (dir === VERTICAL) {
-                return checkPositionsAround(boardArr, x, y, ship + 1, 2)
+                return checkPositionsAround(boardArr, x, y, ship + 1, 2) <= 0;
             } else {
-                return checkPositionsAround(boardArr, x, y, 2, ship + 1)
+                return checkPositionsAround(boardArr, x, y, 2, ship + 1) <= 0;
             }
         }
 
@@ -222,17 +353,22 @@
                         continue;
 
                     if (x + i > boardSize || y + k > boardSize) {
-                        return false;
+                        return 1;
                     }
 
-                    if (x + i < 10 && y + k < 10 && getStateOfField(boardArr, x + i, y + k))
-                        return false;
+                    if (x + i < boardSize && y + k < boardSize) {
+                        let fieldNum = boardArr[x + i][y + k];
+
+                        if (fieldNum > 0) {
+                            return fieldNum;
+                        }
+                    }
                 }
             }
-            return true;
+            return 0;
         }
 
-        function renderShip(board, x, y, dir, size, color) {
+        function renderShip(board, x, y, dir, size, id, color) {
             for (let i = 0; i < size; i++) {
                 let tempX = x;
                 let tempY = y;
@@ -245,45 +381,12 @@
                 if (color === "blue")
                     playerBoardArray[tempX][tempY] = 1;
                 else
-                    computerBoardArray[tempX][tempY] = 1;
-            }
-        }
-
-        function generateBoard() {
-            let ships = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1]
-
-            if (boardSize >= 10) {
-                computerBoardArray = fillArrayWithZeros(computerBoardArray);
-
-                renderComputerBoard(computerBoardArray)
-
-                for (let i = 0; i < 10; i++) {
-                    let result;
-                    do {
-                        result = placeShip(COMPUTER, ships[i], drawCoordinate(), drawCoordinate(), drawDirection())
-                    } while (!result);
-                }
-            }
-        }
-
-        function renderComputerBoard() {
-            for (let i = 0; i < boardSize; i++) {
-                let newTr = document.createElement('tr')
-                for (let k = 0; k < boardSize; k++) {
-                    let newTh = document.createElement("th")
-                    newTh.id = COMPUTER + "=" + i + "x" + k;
-                    newTr.appendChild(newTh)
-                }
-                document.getElementById("computers-board").appendChild(newTr);
+                    computerBoardArray[tempX][tempY] = id;
             }
         }
 
         function setFieldState(board, x, y, color) {
             document.getElementById(board + "=" + x + "x" + y).style.backgroundColor = color;
-        }
-
-        function getStateOfField(array, x, y) {
-            return array[x][y] === 1;
         }
 
         function getBoardArr(board) {
@@ -301,12 +404,21 @@
             return Math.random() < 0.5;
         }
 
+        function howManyElementsArrayContains(array, element) {
+            let counter = 0;
+            for (let i = 0; i < array.length; i++) {
+                if (array[i] === element) {
+                    counter++;
+                }
+            }
+            return counter;
+        }
     </script>
 </head>
 <body>
 <p id="player-label">GRACZ</p>
 <div id="ships-list"></div>
-<table id="players-board"></table>
+<table id="player-board"></table>
 
 <p id="computer-label">KOMPUTER</p>
 <table id="computers-board"></table>
