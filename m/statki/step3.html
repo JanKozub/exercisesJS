@@ -133,6 +133,8 @@
                     let color = "white";
                     if (array[x][y] === 1) {
                         color = "blue";
+                    } else if (array[x][y] === 2){
+                        color = "red";
                     }
 
                     if (array === computerBoardArray) {
@@ -231,7 +233,6 @@
                     newTh.id = COMPUTER + "=" + x + "x" + y;
                     newTh.onclick = () => {
                         if (isGameStarted && !lockShoot && computerBoardArray[x][y] >= 0) {
-                            lockShoot = true;
                             if (computerBoardArray[x][y] !== 0) {
                                 newTh.innerHTML = "✖";
                                 newTh.style.backgroundColor = "red";
@@ -239,17 +240,18 @@
                                 scores.push(value)
                                 isShipCompleted(x, y);
                                 computerBoardArray[x][y] = value * -1;
+
+                                if (destroyedShips.length === 10) {
+                                    alert("WYGRALES!!!")
+                                    restartGame();
+                                    isGameStarted = false;
+                                    lockShoot = false;
+                                }
                             } else {
+                                lockShoot = true;
                                 newTh.innerHTML = "<span class=\"dot\"></span>";
                                 computerBoardArray[x][y] = -5;
-                            }
-                            if (destroyedShips.length === 10) {
-                                alert("WYGRALES!!!")
-                                restartGame();
-                                isGameStarted = false;
-                                lockShoot = false;
-                            } else {
-                                setTimeout(() => computerShoot(), 200);
+                                setTimeout(() => computerShoot(), 500);
                             }
                         }
                     }
@@ -267,11 +269,16 @@
 
         function computerShoot() {
             let cords;
+            let value;
             do {
                 cords = [drawCoordinate(), drawCoordinate()];
-            } while (playerBoardArray[cords[0]][cords[1]] === 2)
-            playerBoardArray[cords[0]][cords[1]] = 2;
+                value = playerBoardArray[cords[0]][cords[1]];
+            } while (value === 2)
 
+            if (value === 1)
+                setTimeout(() => computerShoot(), 500)
+
+            playerBoardArray[cords[0]][cords[1]] = 2;
             setFieldState(PLAYER, cords[0], cords[1], "red")
             lockShoot = false;
         }
