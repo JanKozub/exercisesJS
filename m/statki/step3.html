@@ -235,15 +235,14 @@
                             if (computerBoardArray[x][y] !== 0) {
                                 newTh.innerHTML = "✖";
                                 newTh.style.backgroundColor = "red";
-                                isShipCompleted(x, y);
                                 let value = computerBoardArray[x][y];
                                 scores.push(value)
+                                isShipCompleted(x, y);
                                 computerBoardArray[x][y] = value * -1;
                             } else {
                                 newTh.innerHTML = "<span class=\"dot\"></span>";
                                 computerBoardArray[x][y] = -5;
                             }
-
                             if (destroyedShips.length === 10) {
                                 alert("WYGRALES!!!")
                                 restartGame();
@@ -353,7 +352,7 @@
                 else
                     cords[1] = cords[1] + i
 
-                setFieldState(cords[0], cords[1], color);
+                setFieldState(board, cords[0], cords[1], color);
                 if (color === "blue")
                     playerBoardArray[cords[0]][cords[1]] = 1;
                 else
