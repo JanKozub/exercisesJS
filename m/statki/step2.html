@@ -19,7 +19,7 @@
             border: black 1px solid;
         }
 
-        #computers-board {
+        #playing-board {
             position: relative;
             left: 350px;
         }
@@ -39,32 +39,18 @@
         let ships = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
         let shipDir = VERTICAL;
 
-        let x = -1;
-        let y = -1
-
         window.onload = function () {
             if (boardSize >= 10) {
-                setBoardIds();
-
                 renderBoard();
 
                 renderShipList();
             }
         }
 
-        function setBoardIds() {
-            for (let i = 0; i < boardArray.length; i++) {
-                for (let j = 0; j < boardArray.length; j++) {
-                    boardArray[i][j] = 0;
-                }
-            }
-            return boardArray;
-        }
-
         function clearBoard() {
-            for(let x = 0; x < boardSize; x++) {
-                for(let y = 0; y < boardSize; y++) {
-                    if (boardArray[x][y] === 1){
+            for (let x = 0; x < boardSize; x++) {
+                for (let y = 0; y < boardSize; y++) {
+                    if (boardArray[x][y] === 1) {
                         setFieldState(x, y, "blue")
                     } else {
                         setFieldState(x, y, "white")
@@ -74,8 +60,9 @@
         }
 
         function placeShip(x, y) {
-            if (isPositionValid(x, y) === "0") {
-                renderShip(x, y, shipDir, ships[selectedShip], "blue");
+            let cords = correctCords(x, y)
+            if (isPositionValid(cords[0], cords[1])) {
+                renderShip(cords[0], cords[1], shipDir, ships[selectedShip], "blue");
                 ships.splice(selectedShip, 1);
                 selectedShip = -1;
                 renderShipList();
@@ -83,22 +70,17 @@
         }
 
         function renderBoard() {
-            let board = document.getElementById('computers-board');
+            let board = document.getElementById('playing-board');
             for (let x = 0; x < boardSize; x++) {
                 let newTr = document.createElement('tr')
                 for (let y = 0; y < boardSize; y++) {
+                    boardArray[x][y] = 0;
                     let newTh = document.createElement("th")
                     newTh.id = x + "x" + y;
+
                     newTh.onmouseover = () => onMouseOver(x, y);
-
-                    newTh.addEventListener('contextmenu', function (ev) {
-                        ev.preventDefault();
-                        shipDir = !shipDir;
-
-                        onMouseOver(x, y);
-                    }, false);
-
                     newTh.onclick = () => placeShip(x, y);
+                    newTh.addEventListener('contextmenu', (ev) => onRightClick(ev, x, y), false);
 
                     newTr.appendChild(newTh)
                 }
@@ -109,19 +91,18 @@
 
         function onMouseOver(x, y) {
             clearBoard();
-            if (shipDir === VERTICAL) {
-                if (x + ships[selectedShip] > boardSize)
-                    x = x - (x + ships[selectedShip] - boardSize)
-            } else {
-                if (y + ships[selectedShip] > boardSize)
-                    y = y - (y + ships[selectedShip] - boardSize)
-            }
 
-            if (isPositionValid(x, y) === "0")
-                renderShip(x, y, shipDir, ships[selectedShip], "green")
+            let cords = correctCords(x, y)
+            if (isPositionValid(cords[0], cords[1]))
+                renderShip(cords[0], cords[1], shipDir, ships[selectedShip], "green")
             else
-                renderShip(x, y, shipDir, ships[selectedShip], "red")
+                renderShip(cords[0], cords[1], shipDir, ships[selectedShip], "red")
+        }
 
+        function onRightClick(ev, x, y) {
+            ev.preventDefault();
+            shipDir = !shipDir;
+            onMouseOver(x, y);
         }
 
         function renderShipList() {
@@ -137,15 +118,8 @@
                 if (s === selectedShip)
                     newTr.style.backgroundColor = "blue";
 
-                newShip.onmouseover = () => {
-                    if (selectedShip !== s)
-                        newTr.style.backgroundColor = "red";
-                }
-
-                newShip.onmouseleave = () => {
-                    if (selectedShip !== s)
-                        newTr.style.backgroundColor = "white";
-                }
+                newShip.onmouseover = () => setElementBackgroundColor(newTr, s, "red")
+                newShip.onmouseleave = () => setElementBackgroundColor(newTr, s, "white")
 
                 newShip.onclick = () => {
                     newTr.style.backgroundColor = "blue";
@@ -170,14 +144,11 @@
         }
 
         function isPositionValid(x, y) {
-            let result;
-
             if (shipDir === VERTICAL) {
-                result = checkPositionsAround(x, y, ships[selectedShip] + 1, 2)
+                return checkPositionsAround(x, y, ships[selectedShip] + 1, 2)
             } else {
-                result = checkPositionsAround(x, y, 2, ships[selectedShip] + 1)
+                return checkPositionsAround(x, y, 2, ships[selectedShip] + 1)
             }
-            return result;
         }
 
         function checkPositionsAround(x, y, size1, size2) {
@@ -186,38 +157,48 @@
                     if (x + i < 0 || y + k < 0)
                         continue;
 
-                    if (x + i > boardSize || y + k > boardSize) {
-                        return "1"
-                    }
+                    if (x + i > boardSize || y + k > boardSize)
+                        return false
 
-                    if (x + i < 10 && y + k < 10 && getStateOfField(x + i, y + k))
-                        return "2";
+                    if (x + i < 10 && y + k < 10 && boardArray[x + i][y + k] === 1)
+                        return false;
                 }
             }
-            return "0";
+            return true;
         }
 
         function renderShip(x, y, dir, size, color) {
             for (let i = 0; i < size; i++) {
-                let tempX = x;
-                let tempY = y;
+                let cords = [x, y];
                 if (dir === VERTICAL)
-                    tempX = x + i;
+                    cords[0] = cords[0] + i;
                 else
-                    tempY = y + i
+                    cords[1] = cords[1] + i
 
-                setFieldState(tempX, tempY, color);
+                setFieldState(cords[0], cords[1], color);
                 if (color === "blue")
-                    boardArray[tempX][tempY] = 1;
+                    boardArray[cords[0]][cords[1]] = 1;
             }
+        }
+
+        function correctCords(x, y) {
+            if (shipDir === VERTICAL) {
+                if (x + ships[selectedShip] > boardSize)
+                    x = x - (x + ships[selectedShip] - boardSize)
+            } else {
+                if (y + ships[selectedShip] > boardSize)
+                    y = y - (y + ships[selectedShip] - boardSize)
+            }
+            return [x, y];
         }
 
         function setFieldState(x, y, color) {
             document.getElementById(x + "x" + y).style.backgroundColor = color;
         }
 
-        function getStateOfField(x, y) {
-            return document.getElementById(x + "x" + y).style.backgroundColor === "blue";
+        function setElementBackgroundColor(el, s, color) {
+            if (selectedShip !== s)
+                el.style.backgroundColor = color;
         }
     </script>
 </head>

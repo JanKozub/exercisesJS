@@ -38,7 +38,7 @@
                 renderBoard(board)
 
 
-                for (let i = 0; i < 10; i++) {
+                for (let i = 0; i < ships.length; i++) {
                     let result = "0"
                     do {
                         result = placeShip(board, ships[i], drawDirection(), drawCoordinate(), drawCoordinate())
@@ -48,7 +48,7 @@
         }
 
         function drawCoordinate() {
-            return Math.floor((Math.random() * 10));
+            return Math.floor((Math.random() * boardSize));
         }
 
         function drawDirection() {
