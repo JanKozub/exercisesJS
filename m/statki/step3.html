@@ -73,6 +73,11 @@
         const PLAYER = "p";
         const COMPUTER = "c";
         const boardSize = 10;
+        const TIMEOUT = 100;
+        const X = 0;
+        const Y = 1;
+        const SCORE = 2;
+        const MISS = 3;
 
         let selectedShip = 0;
         let playerBoardArray = Array.from(Array(boardSize), () => new Array(boardSize));
@@ -83,8 +88,8 @@
 
         let scores = []
 
-        let isGameStarted = false;
-        let lockShoot = false;
+        let isGameStarted;
+        let lockShoot;
 
         window.onload = function () {
             if (boardSize >= 10) {
@@ -109,13 +114,18 @@
 
         function restartGame() {
             playerShips = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
+            destroyedShips = []
+            scores = []
             playerBoardArray = fillArrayWithZeros(playerBoardArray);
             computerBoardArray = fillArrayWithZeros(computerBoardArray);
 
-            renderShipList();
+            renderShipList(); // ASDASDASDFGDCSFKSGJHSFGKGHJSF:KLJHFDKL:JHK:FDKJH:LFKDJHKLFD:JHLFDKJHLKDFGJHLKFDJGHLKFDJHLKFDJGHLKDFGH
 
             clearBoard(playerBoardArray)
             clearBoard(computerBoardArray)
+
+            isGameStarted = false;
+            lockShoot = false;
         }
 
         function fillArrayWithZeros(array) {
@@ -133,7 +143,7 @@
                     let color = "white";
                     if (array[x][y] === 1) {
                         color = "blue";
-                    } else if (array[x][y] === 2){
+                    } else if (array[x][y] >= 2) {
                         color = "red";
                     }
 
@@ -214,7 +224,7 @@
                     renderShipList();
                 }
             } else {
-                renderShip(board, cords[0], cords[1], direction, size, id, "black");
+                renderShip(board, cords[0], cords[1], direction, size, id, "white");
             }
             return true;
         }
@@ -244,14 +254,12 @@
                                 if (destroyedShips.length === 10) {
                                     alert("WYGRALES!!!")
                                     restartGame();
-                                    isGameStarted = false;
-                                    lockShoot = false;
                                 }
                             } else {
                                 lockShoot = true;
                                 newTh.innerHTML = "<span class=\"dot\"></span>";
                                 computerBoardArray[x][y] = -5;
-                                setTimeout(() => computerShoot(), 500);
+                                setTimeout(() => computerShoot(), TIMEOUT);
                             }
                         }
                     }
@@ -268,19 +276,56 @@
         }
 
         function computerShoot() {
+            lockShoot = false;
             let cords;
             let value;
+            let lock;
             do {
                 cords = [drawCoordinate(), drawCoordinate()];
-                value = playerBoardArray[cords[0]][cords[1]];
-            } while (value === 2)
+                value = playerBoardArray[cords[X]][cords[Y]]
 
-            if (value === 1)
-                setTimeout(() => computerShoot(), 500)
+                lock = !!(cords[X] > 0 && cords[Y] > 0 && playerBoardArray[cords[X] - 1][cords[Y] - 1]);
+                if (cords[X] > 0 && cords[Y] < boardSize - 1 && playerBoardArray[cords[X] - 1][cords[Y] + 1]) lock = true;
+                if (cords[X] < boardSize - 1 && cords[Y] > 0 && playerBoardArray[cords[X] + 1][cords[Y] - 1]) lock = true;
+                if (cords[X] < boardSize - 1 && cords[Y] < boardSize - 1 && playerBoardArray[cords[X] + 1][cords[Y] + 1]) lock = true;
+                if (value >= 2) lock = true;
 
-            playerBoardArray[cords[0]][cords[1]] = 2;
-            setFieldState(PLAYER, cords[0], cords[1], "red")
-            lockShoot = false;
+            } while (lock)
+
+            if (value === 1) {
+                playerBoardArray[cords[X]][cords[Y]] = SCORE;
+                setTimeout(() => computerShoot(), TIMEOUT)
+            } else {
+                playerBoardArray[cords[X]][cords[Y]] = MISS;
+            }
+            setFieldState(PLAYER, cords[X], cords[Y], "red")
+
+            if (doesComputerWin()) {
+                alert("PRZEGRALES!!! :((")
+
+                showComputerShips();
+                setTimeout(() => restartGame(), 5000);
+            }
+        }
+
+        function showComputerShips() {
+            for (let x = 0; x < boardSize; x++) {
+                for (let y = 0; y < boardSize; y++) {
+                    let val = computerBoardArray[x][y];
+                    if (val !== 0 && val !== -5){
+                        setFieldState(COMPUTER, x, y, "black")
+                    }
+                }
+            }
+        }
+
+        function doesComputerWin() {
+            for (let i = 0; i < boardSize; i++) {
+                if (playerBoardArray[i].includes(1)) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         function renderShipList() {
@@ -390,7 +435,7 @@
         }
 
         function drawCoordinate() {
-            return Math.floor((Math.random() * 9));
+            return Math.floor((Math.random() * boardSize));
         }
 
         function drawDirection() {
