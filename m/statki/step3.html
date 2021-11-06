@@ -5,6 +5,11 @@
     <title>Step 3</title>
 
     <style>
+        table {
+            border-spacing: 0;
+            border: black 1px solid;
+        }
+
         td {
             border: black 1px solid;
         }
@@ -66,6 +71,11 @@
             border-radius: 50%;
             display: inline-block;
         }
+
+        #main {
+            position: relative;
+            top: 200px;
+        }
     </style>
 
     <script>
@@ -74,8 +84,6 @@
         const COMPUTER = "c";
         const boardSize = 10;
         const TIMEOUT = 100;
-        const X = 0;
-        const Y = 1;
         const SCORE = 2;
         const MISS = 3;
 
@@ -106,6 +114,7 @@
             if (playerShips.length === 0 && !isGameStarted) {
                 generateComputerBoard();
                 isGameStarted = true;
+                document.getElementById("start-button").disabled = true;
             } else {
                 if (!isGameStarted)
                     alert("Umiesc wszystkie statki!")
@@ -116,25 +125,17 @@
             playerShips = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
             destroyedShips = []
             scores = []
-            playerBoardArray = fillArrayWithZeros(playerBoardArray);
-            computerBoardArray = fillArrayWithZeros(computerBoardArray);
+            playerBoardArray = Array.from(Array(boardSize), _ => Array(boardSize).fill(0));
+            computerBoardArray = Array.from(Array(boardSize), _ => Array(boardSize).fill(0));
 
-            renderShipList(); // ASDASDASDFGDCSFKSGJHSFGKGHJSF:KLJHFDKL:JHK:FDKJH:LFKDJHKLFD:JHLFDKJHLKDFGJHLKFDJGHLKFDJHLKFDJGHLKDFGH
+            renderShipList();
 
             clearBoard(playerBoardArray)
             clearBoard(computerBoardArray)
 
+            document.getElementById("start-button").disabled = false;
             isGameStarted = false;
             lockShoot = false;
-        }
-
-        function fillArrayWithZeros(array) {
-            for (let i = 0; i < array.length; i++) {
-                for (let j = 0; j < array.length; j++) {
-                    array[i][j] = 0;
-                }
-            }
-            return array;
         }
 
         function clearBoard(array) {
@@ -241,70 +242,67 @@
                 for (let y = 0; y < boardSize; y++) {
                     let newTh = document.createElement("th")
                     newTh.id = COMPUTER + "=" + x + "x" + y;
-                    newTh.onclick = () => {
-                        if (isGameStarted && !lockShoot && computerBoardArray[x][y] >= 0) {
-                            if (computerBoardArray[x][y] !== 0) {
-                                newTh.innerHTML = "✖";
-                                newTh.style.backgroundColor = "red";
-                                let value = computerBoardArray[x][y];
-                                scores.push(value)
-                                isShipCompleted(x, y);
-                                computerBoardArray[x][y] = value * -1;
-
-                                if (destroyedShips.length === 10) {
-                                    alert("WYGRALES!!!")
-                                    restartGame();
-                                }
-                            } else {
-                                lockShoot = true;
-                                newTh.innerHTML = "<span class=\"dot\"></span>";
-                                computerBoardArray[x][y] = -5;
-                                setTimeout(() => computerShoot(), TIMEOUT);
-                            }
-                        }
-                    }
+                    newTh.onclick = () => recordShot(newTh, x, y);
                     newTr.appendChild(newTh)
                 }
                 document.getElementById("computers-board").appendChild(newTr);
             }
         }
 
-        function isShipCompleted(x, y) {
-            let num = checkPositionsAround(computerBoardArray, x, y, 2, 2);
-            if (howManyElementsArrayContains(scores, num) === Math.floor(num / 10))
-                destroyedShips.push(num)
+        function recordShot(newTh, x, y) {
+            if (isGameStarted && !lockShoot && computerBoardArray[x][y] >= 0 && computerBoardArray[x][y] !== 0) {
+                newTh.innerHTML = "✖";
+                newTh.style.backgroundColor = "red";
+                let value = computerBoardArray[x][y];
+                scores.push(value)
+
+                let num = checkPositionsAround(computerBoardArray, x, y, 2, 2);
+                if (howManyElementsArrayContains(scores, num) === Math.floor(num / 10))
+                    destroyedShips.push(num)
+
+                computerBoardArray[x][y] = value * -1;
+
+                if (destroyedShips.length === 10) {
+                    alert("WYGRALES!!!")
+                    restartGame();
+                }
+            } else {
+                lockShoot = true;
+                newTh.innerHTML = "<span class=\"dot\"></span>";
+                computerBoardArray[x][y] = -5;
+                setTimeout(() => computerShoot(), TIMEOUT);
+            }
         }
 
         function computerShoot() {
-            lockShoot = false;
-            let cords;
-            let value;
-            let lock;
-            do {
-                cords = [drawCoordinate(), drawCoordinate()];
-                value = playerBoardArray[cords[X]][cords[Y]]
-
-                lock = !!(cords[X] > 0 && cords[Y] > 0 && playerBoardArray[cords[X] - 1][cords[Y] - 1]);
-                if (cords[X] > 0 && cords[Y] < boardSize - 1 && playerBoardArray[cords[X] - 1][cords[Y] + 1]) lock = true;
-                if (cords[X] < boardSize - 1 && cords[Y] > 0 && playerBoardArray[cords[X] + 1][cords[Y] - 1]) lock = true;
-                if (cords[X] < boardSize - 1 && cords[Y] < boardSize - 1 && playerBoardArray[cords[X] + 1][cords[Y] + 1]) lock = true;
-                if (value >= 2) lock = true;
-
-            } while (lock)
-
-            if (value === 1) {
-                playerBoardArray[cords[X]][cords[Y]] = SCORE;
-                setTimeout(() => computerShoot(), TIMEOUT)
-            } else {
-                playerBoardArray[cords[X]][cords[Y]] = MISS;
-            }
-            setFieldState(PLAYER, cords[X], cords[Y], "red")
-
             if (doesComputerWin()) {
                 alert("PRZEGRALES!!! :((")
 
                 showComputerShips();
                 setTimeout(() => restartGame(), 5000);
+            } else {
+                lockShoot = false;
+                let cords;
+                let value;
+                let lock;
+                do {
+                    cords = {x: drawCoordinate(), y: drawCoordinate()};
+                    value = playerBoardArray[cords.x][cords.y]
+
+                    lock = !!(cords.x > 0 && cords.y > 0 && playerBoardArray[cords.x - 1][cords.y - 1]);
+                    if (cords.x > 0 && cords.y < boardSize - 1 && playerBoardArray[cords.x - 1][cords.y + 1]) lock = true;
+                    if (cords.x < boardSize - 1 && cords.y > 0 && playerBoardArray[cords.x + 1][cords.y - 1]) lock = true;
+                    if (cords.x < boardSize - 1 && cords.y < boardSize - 1 && playerBoardArray[cords.x + 1][cords.y + 1]) lock = true;
+                    if (value >= 2) lock = true;
+                } while (lock)
+                setFieldState(PLAYER, cords.x, cords.y, "red")
+
+                if (value === 1) {
+                    playerBoardArray[cords.x][cords.y] = SCORE;
+                    setTimeout(() => computerShoot(), TIMEOUT)
+                } else {
+                    playerBoardArray[cords.x][cords.y] = MISS;
+                }
             }
         }
 
@@ -312,7 +310,7 @@
             for (let x = 0; x < boardSize; x++) {
                 for (let y = 0; y < boardSize; y++) {
                     let val = computerBoardArray[x][y];
-                    if (val !== 0 && val !== -5){
+                    if (val !== 0 && val !== -5) {
                         setFieldState(COMPUTER, x, y, "black")
                     }
                 }
@@ -454,13 +452,15 @@
     </script>
 </head>
 <body>
-<p id="player-label">GRACZ</p>
-<div id="ships-list"></div>
-<table id="player-board"></table>
+<div id="main">
+    <p id="player-label">GRACZ</p>
+    <div id="ships-list"></div>
+    <table id="player-board"></table>
 
-<p id="computer-label">KOMPUTER</p>
-<table id="computers-board"></table>
+    <p id="computer-label">KOMPUTER</p>
+    <table id="computers-board"></table>
 
-<button id="start-button">Start</button>
+    <button id="start-button">Start</button>
+</div>
 </body>
 </html>
