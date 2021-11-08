@@ -70,7 +70,7 @@
     <script>
         const VERTICAL = true;
         const boardSize = 10;
-        const TIMEOUT = 100;
+        const TIMEOUT = 1000;
         const SCORE = 2;
         const MISS = 3;
 
@@ -253,17 +253,12 @@
                 lockShoot = false;
                 let cords;
                 let value;
-                let lock;
                 do {
                     cords = {x: drawCoordinate(), y: drawCoordinate()};
                     value = playerBoardArray[cords.x][cords.y]
 
-                    lock = !!(cords.x > 0 && cords.y > 0 && playerBoardArray[cords.x - 1][cords.y - 1]);
-                    if (cords.x > 0 && cords.y < boardSize - 1 && playerBoardArray[cords.x - 1][cords.y + 1]) lock = true;
-                    if (cords.x < boardSize - 1 && cords.y > 0 && playerBoardArray[cords.x + 1][cords.y - 1]) lock = true;
-                    if (cords.x < boardSize - 1 && cords.y < boardSize - 1 && playerBoardArray[cords.x + 1][cords.y + 1]) lock = true;
-                    if (value >= 2) lock = true;
-                } while (lock)
+                    if (value < 2) break;
+                } while (true)
                 setFieldState(playerBoardArray, cords.x, cords.y, "red")
 
                 if (value === 1) {
