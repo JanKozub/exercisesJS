@@ -2,9 +2,13 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>Step 3</title>
+    <title>Step Bonus</title>
 
     <style>
+        body {
+            user-select: none;
+        }
+
         #main {
             position: absolute;
             top: 30px;
@@ -73,6 +77,7 @@
         const TIMEOUT = 1000;
         const SCORE = 2;
         const MISS = 3;
+        const AROUND_SCORE = 5;
 
         let selectedShip = 0;
         let playerBoardArray = Array.from(Array(BOARD_SIZE), () => new Array(BOARD_SIZE));
@@ -127,9 +132,22 @@
         function clearBoard(array) {
             for (let x = 0; x < BOARD_SIZE; x++) {
                 for (let y = 0; y < BOARD_SIZE; y++) {
-                    let color = array[x][y] === 0 ? "white" : "blue";
-                    color = array[x][y] >= 2 ? "red" : color;
-                    setFieldState(array, x, y, color)
+                    let color;
+                    switch (array[x][y]) {
+                        case 0:
+                            color = "white"
+                            break;
+                        case 1:
+                            color = "blue";
+                            break;
+                        case SCORE:
+                            color = "red";
+                            break;
+                        case MISS:
+                            color = "red";
+                            break;
+                    }
+                    setFieldState(array, x, y, color, false)
                 }
             }
         }
@@ -259,13 +277,24 @@
 
                     if (value < 2) break;
                 } while (true)
-                setFieldState(playerBoardArray, cords.x, cords.y, "red")
+                setFieldState(playerBoardArray, cords.x, cords.y, "red", false)
 
                 if (value === 1) {
                     playerBoardArray[cords.x][cords.y] = SCORE;
                     lockShoot = true;
+                    document.getElementById("p=" + cords.x + "x" + cords.y).innerHTML = "✖"
+
+                    for (let i = cords.x - 1; i <= cords.x + 1; i++) {
+                        for (let l = cords.y - 1; l <= cords.y + 1; l++) {
+                            if (i >= 0 && l >= 0 && i < BOARD_SIZE && l < BOARD_SIZE)
+                                if (i !== cords.x || l !== cords.y)
+                                    if (playerBoardArray[i][l] === 0)
+                                        playerBoardArray[i][l] = AROUND_SCORE;
+                        }
+                    }
+                    console.log(playerBoardArray)
+
                     setTimeout(() => computerShoot(), TIMEOUT)
-                        document.getElementById("").innerHTML = "✖";
                 } else {
                     playerBoardArray[cords.x][cords.y] = MISS;
                 }
@@ -277,7 +306,7 @@
                 for (let y = 0; y < BOARD_SIZE; y++) {
                     let val = computerBoardArray[x][y];
                     if (val !== 0 && val !== -5) {
-                        setFieldState(computerBoardArray, x, y, "black")
+                        setFieldState(computerBoardArray, x, y, "black", true)
                     }
                 }
             }
@@ -355,7 +384,7 @@
                 else
                     cords.y = cords.y + i
 
-                setFieldState(board, cords.x, cords.y, color);
+                setFieldState(board, cords.x, cords.y, color, true);
                 if (color === "blue")
                     playerBoardArray[cords.x][cords.y] = 1;
                 else
@@ -374,11 +403,12 @@
             return {x: x, y: y};
         }
 
-        function setFieldState(board, x, y, color) {
+        function setFieldState(board, x, y, color, clearText) {
             let val = board === computerBoardArray ? "c" : "p"
             let el = document.getElementById(val + "=" + x + "x" + y)
             el.style.backgroundColor = color;
-            el.innerText = ""
+            if (clearText)
+                el.innerHTML = ""
         }
 
         function drawCoordinate() {
