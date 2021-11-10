@@ -74,7 +74,7 @@
     <script>
         const VERTICAL = true;
         const BOARD_SIZE = 10;
-        const TIMEOUT = 1000;
+        const TIMEOUT = 100;
         const SCORE = 2;
         const MISS = 3;
         const AROUND_SCORE = 5;
@@ -120,8 +120,8 @@
 
             renderShipList();
 
-            clearBoard(playerBoardArray)
-            clearBoard(computerBoardArray)
+            clearBoard(playerBoardArray, true)
+            clearBoard(computerBoardArray, true)
 
             document.getElementById("start-button").disabled = false;
             document.getElementById("score").innerText = ""
@@ -129,7 +129,7 @@
             lockShoot = false;
         }
 
-        function clearBoard(array) {
+        function clearBoard(array, all) {
             for (let x = 0; x < BOARD_SIZE; x++) {
                 for (let y = 0; y < BOARD_SIZE; y++) {
                     let color;
@@ -147,7 +147,7 @@
                             color = "red";
                             break;
                     }
-                    setFieldState(array, x, y, color, false)
+                    setFieldState(array, x, y, color, all)
                 }
             }
         }
@@ -181,11 +181,11 @@
                 }
                 board.appendChild(newTr);
             }
-            board.onmouseleave = () => clearBoard(playerBoardArray);
+            board.onmouseleave = () => clearBoard(playerBoardArray, false);
         }
 
         function onMouseOver(x, y) {
-            clearBoard(playerBoardArray);
+            clearBoard(playerBoardArray, false);
 
             let cords = correctCords(x, y, shipDir, playerShips[selectedShip])
             if (isPositionValid(playerBoardArray, playerShips[selectedShip], cords.x, cords.y, shipDir))
@@ -292,8 +292,6 @@
                                         playerBoardArray[i][l] = AROUND_SCORE;
                         }
                     }
-                    console.log(playerBoardArray)
-
                     setTimeout(() => computerShoot(), TIMEOUT)
                 } else {
                     playerBoardArray[cords.x][cords.y] = MISS;
