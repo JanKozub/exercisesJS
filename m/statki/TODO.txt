@@ -1,9 +1,9 @@
 (max. +1p) BONUS - najszybszy algorytm wygrania komputera z graczem
 		napisz algorytm bot'a tak by komputer:
 			0.5p (cała sekcja)
-				- sprawdzał w jakim kierunku jest wsawiony trafiony okręt,
+				X- sprawdzał w jakim kierunku jest wsawiony trafiony okręt,
 				X- dokańczał go (zatapiał),
-				X- nie trafiał w pozostałe jeszcze nie trafiane pola w koło zatopionego okrętu
+				- nie trafiał w pozostałe jeszcze nie trafiane pola w koło zatopionego okrętu
 			0.5p
 				- bot "sieje" plansze w poszukiwaniu najdłuższego pozostałego do zatopienia statku
 				sprawdzam obserwując czy komputer nie robi bezsensownego ruchu

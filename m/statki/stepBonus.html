@@ -75,23 +75,21 @@
         const VERTICAL = true;
         const BOARD_SIZE = 10;
         const TIMEOUT = 100;
-        const SHIP = 1;
-        const SCORE = 2;
-        const MISS = 3;
-        const AROUND_SCORE = 5;
+        const MISS = -9;
 
         let selectedShip = 0;
         let playerBoardArray = Array.from(Array(BOARD_SIZE), () => new Array(BOARD_SIZE));
         let computerBoardArray = Array.from(Array(BOARD_SIZE), () => new Array(BOARD_SIZE));
         let playerShips = []
-        let destroyedShips = [];
+        let destroyedShipsPlayer = [];
+        let destroyedShipsComputer = [];
         let shipDir = VERTICAL;
 
-        let lastScore = {x: -1, y: -1};
-        let lastScored = false;
-        let posCounter = 0;
+        let fieldsToShoot = []
+        let lastScored = {x: -1, y: -1}
 
-        let scores = []
+        let scoresPlayer = []
+        let scoresComputer = []
 
         let isGameStarted;
         let lockShoot;
@@ -117,9 +115,9 @@
         }
 
         function restartGame() {
-            playerShips = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
-            destroyedShips = []
-            scores = []
+            playerShips = [40, 30, 31, 20, 21, 22, 10, 11, 12, 13];
+            destroyedShipsPlayer = []
+            scoresPlayer = []
             playerBoardArray = Array.from(Array(BOARD_SIZE), _ => Array(BOARD_SIZE).fill(0));
             computerBoardArray = Array.from(Array(BOARD_SIZE), _ => Array(BOARD_SIZE).fill(0));
 
@@ -138,20 +136,14 @@
             for (let x = 0; x < BOARD_SIZE; x++) {
                 for (let y = 0; y < BOARD_SIZE; y++) {
                     let color;
-                    switch (array[x][y]) {
-                        case 0:
-                            color = "white"
-                            break;
-                        case 1:
-                            color = "blue";
-                            break;
-                        case SCORE:
-                            color = "red";
-                            break;
-                        case MISS:
-                            color = "red";
-                            break;
+                    if (array[x][y] === 0) {
+                        color = "white"
+                    } else if (array[x][y] > 9) {
+                        color = "blue"
+                    } else if (array[x][y] <= -9) {
+                        color = "red"
                     }
+
                     setFieldState(array, x, y, color, all)
                 }
             }
@@ -192,11 +184,11 @@
         function onMouseOver(x, y) {
             clearBoard(playerBoardArray, false);
 
-            let cords = correctCords(x, y, shipDir, playerShips[selectedShip])
-            if (isPositionValid(playerBoardArray, playerShips[selectedShip], cords.x, cords.y, shipDir))
-                renderShip(playerBoardArray, cords.x, cords.y, shipDir, playerShips[selectedShip], 0, "green")
+            let cords = correctCords(x, y, shipDir, getShipSize(playerShips[selectedShip]))
+            if (isPositionValid(playerBoardArray, getShipSize(playerShips[selectedShip]), cords.x, cords.y, shipDir))
+                renderShip(playerBoardArray, cords.x, cords.y, shipDir, getShipSize(playerShips[selectedShip]), 0, "green")
             else
-                renderShip(playerBoardArray, cords.x, cords.y, shipDir, playerShips[selectedShip], 0, "red")
+                renderShip(playerBoardArray, cords.x, cords.y, shipDir, getShipSize(playerShips[selectedShip]), 0, "red")
         }
 
         function onRightClick(ev, x, y) {
@@ -206,7 +198,7 @@
         }
 
         function placeShip(board, id, x, y, direction) {
-            let size = board === computerBoardArray ? Math.floor(id / 10) : id
+            let size = getShipSize(id)
 
             let cords = correctCords(x, y, direction, size)
 
@@ -214,7 +206,7 @@
                 return false;
 
             if (board === playerBoardArray) {
-                renderShip(board, cords.x, cords.y, direction, size, size, "blue");
+                renderShip(board, cords.x, cords.y, direction, size, id, "blue");
                 playerShips.splice(selectedShip, 1);
                 selectedShip = 0;
                 if (playerShips.length !== -1)
@@ -244,15 +236,15 @@
                     newTh.innerHTML = "✖";
                     newTh.style.backgroundColor = "red";
                     let value = computerBoardArray[x][y];
-                    scores.push(value)
+                    scoresPlayer.push(value)
 
                     let num = checkPositionsAround(computerBoardArray, x, y, 2, 2);
-                    if (howManyElementsArrayContains(scores, num) === Math.floor(num / 10))
-                        destroyedShips.push(num)
+                    if (howManyElementsArrayContains(scoresPlayer, num) === Math.floor(num / 10))
+                        destroyedShipsPlayer.push(num)
 
                     computerBoardArray[x][y] = value * -1;
 
-                    if (destroyedShips.length === 10) {
+                    if (destroyedShipsPlayer.length === 10) {
                         document.getElementById("score").innerText = "Wygrales!!"
                         restartGame();
                     }
@@ -275,50 +267,60 @@
             } else {
                 lockShoot = false;
                 let cords;
-                let value = -10;
+                let value;
                 do {
-                    if (lastScored && posCounter < 4) {
-                        switch (posCounter) {
-                            case 0:
-                                cords = {x: lastScore.x - 1, y: lastScore.y}
-                                break;
-                            case 1:
-                                cords = {x: lastScore.x, y: lastScore.y - 1}
-                                break;
-                            case 2:
-                                cords = {x: lastScore.x + 1, y: lastScore.y}
-                                break;
-                            case 3:
-                                cords = {x: lastScore.x, y: lastScore.y + 1}
-                                break;
-                        }
-                        posCounter++;
-
-                        if (cords.x < 0 || cords.x > 9 || cords.y < 0 || cords.y > 9)
-                            continue;
-
+                    console.log(fieldsToShoot)
+                    if (fieldsToShoot.length > 0) {
+                        cords = fieldsToShoot[0];
+                        fieldsToShoot.shift();
                     } else {
                         cords = {x: drawCoordinate(), y: drawCoordinate()};
                     }
 
                     value = playerBoardArray[cords.x][cords.y]
-                    if (value < 2) break;
+
+                    if (value >= 0) break;
                 } while (true);
-                lastScored = false;
+
                 setFieldState(playerBoardArray, cords.x, cords.y, "red", false)
 
-                if (value === SHIP) {
-                    playerBoardArray[cords.x][cords.y] = SCORE;
+                if (value > 9 && value !== MISS) {
+                    playerBoardArray[cords.x][cords.y] = value * -1;
                     lockShoot = true;
                     document.getElementById("p=" + cords.x + "x" + cords.y).innerHTML = "✖"
 
                     markPositionsAround(cords);
 
-                    lastScore = {x: cords.x, y: cords.y}
-                    lastScored = true;
-                    posCounter = 0;
+                    scoresComputer.push(value);
 
+                    if (lastScored.x !== -1) {
+                        while (true) {
+                            let tester = true;
+                            for (let i = 0; i < fieldsToShoot.length; i++) {
+                                if (cords.x === lastScored.x) {
+                                    if (fieldsToShoot[i].x !== lastScored.x) {
+                                        fieldsToShoot.splice(i, 1)
+                                        tester = false;
+                                    }
+                                } else {
+                                    if (fieldsToShoot[i].y !== lastScored.y) {
+                                        fieldsToShoot.splice(i, 1)
+                                        tester = false;
+                                    }
+                                }
+                            }
+                            if (tester) break;
+                        }
+                    } else {
+                        lastScored = {x: cords.x, y: cords.y}
+                    }
 
+                    if (howManyElementsArrayContains(scoresComputer, value) === getShipSize(value)) {
+                        destroyedShipsPlayer.push(value)
+                        fieldsToShoot = []
+                        lastScored = {x: -1, y: -1}
+                        clearBoard(playerBoardArray, false)
+                    }
 
                     setTimeout(() => computerShoot(), TIMEOUT)
                 } else {
@@ -331,8 +333,13 @@
             for (let i = cords.x - 1; i <= cords.x + 1; i++) {
                 for (let l = cords.y - 1; l <= cords.y + 1; l++) {
                     if (i >= 0 && l >= 0 && i < BOARD_SIZE && l < BOARD_SIZE)
-                        if ((i !== cords.x || l !== cords.y) && playerBoardArray[i][l] === 0)
-                            playerBoardArray[i][l] = AROUND_SCORE;
+                        if (i === cords.x || l === cords.y) {
+                            if (!(i === cords.x && l === cords.y)) {
+                                if (!(playerBoardArray[i][l] <= -9)) {
+                                    fieldsToShoot.push({x: i, y: l})
+                                }
+                            }
+                        }
                 }
             }
         }
@@ -349,7 +356,7 @@
         }
 
         function doesComputerWin() {
-            return !playerBoardArray.some(row => row.includes(1));
+            return destroyedShipsComputer.length === 10;
         }
 
         function renderShipList() {
@@ -368,7 +375,7 @@
                 newShip.onmouseleave = () => setElementBackgroundColor(newTr, s, "white")
                 newShip.onclick = () => onClickShip(newTr, s);
 
-                for (let i = 0; i < playerShips[s]; i++) {
+                for (let i = 0; i < getShipSize(playerShips[s]); i++) {
                     newTr.appendChild(document.createElement('th'));
                 }
                 newShip.appendChild(newTr);
@@ -422,7 +429,7 @@
 
                 setFieldState(board, cords.x, cords.y, color, true);
                 if (color === "blue")
-                    playerBoardArray[cords.x][cords.y] = 1;
+                    playerBoardArray[cords.x][cords.y] = id;
                 else
                     computerBoardArray[cords.x][cords.y] = id;
             }
@@ -462,6 +469,10 @@
                     counter++;
             }
             return counter;
+        }
+
+        function getShipSize(size) {
+            return Math.floor(size / 10);
         }
     </script>
 </head>
