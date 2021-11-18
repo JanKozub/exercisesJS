@@ -75,6 +75,7 @@
         const VERTICAL = true;
         const BOARD_SIZE = 10;
         const TIMEOUT = 100;
+        const SHIP = 1;
         const SCORE = 2;
         const MISS = 3;
         const AROUND_SCORE = 5;
@@ -85,6 +86,10 @@
         let playerShips = []
         let destroyedShips = [];
         let shipDir = VERTICAL;
+
+        let lastScore = {x: -1, y: -1};
+        let lastScored = false;
+        let posCounter = 0;
 
         let scores = []
 
@@ -270,31 +275,64 @@
             } else {
                 lockShoot = false;
                 let cords;
-                let value;
+                let value = -10;
                 do {
-                    cords = {x: drawCoordinate(), y: drawCoordinate()};
-                    value = playerBoardArray[cords.x][cords.y]
+                    if (lastScored && posCounter < 4) {
+                        switch (posCounter) {
+                            case 0:
+                                cords = {x: lastScore.x - 1, y: lastScore.y}
+                                break;
+                            case 1:
+                                cords = {x: lastScore.x, y: lastScore.y - 1}
+                                break;
+                            case 2:
+                                cords = {x: lastScore.x + 1, y: lastScore.y}
+                                break;
+                            case 3:
+                                cords = {x: lastScore.x, y: lastScore.y + 1}
+                                break;
+                        }
+                        posCounter++;
 
+                        if (cords.x < 0 || cords.x > 9 || cords.y < 0 || cords.y > 9)
+                            continue;
+
+                    } else {
+                        cords = {x: drawCoordinate(), y: drawCoordinate()};
+                    }
+
+                    value = playerBoardArray[cords.x][cords.y]
                     if (value < 2) break;
-                } while (true)
+                } while (true);
+                lastScored = false;
                 setFieldState(playerBoardArray, cords.x, cords.y, "red", false)
 
-                if (value === 1) {
+                if (value === SHIP) {
                     playerBoardArray[cords.x][cords.y] = SCORE;
                     lockShoot = true;
                     document.getElementById("p=" + cords.x + "x" + cords.y).innerHTML = "✖"
 
-                    for (let i = cords.x - 1; i <= cords.x + 1; i++) {
-                        for (let l = cords.y - 1; l <= cords.y + 1; l++) {
-                            if (i >= 0 && l >= 0 && i < BOARD_SIZE && l < BOARD_SIZE)
-                                if (i !== cords.x || l !== cords.y)
-                                    if (playerBoardArray[i][l] === 0)
-                                        playerBoardArray[i][l] = AROUND_SCORE;
-                        }
-                    }
+                    markPositionsAround(cords);
+
+                    lastScore = {x: cords.x, y: cords.y}
+                    lastScored = true;
+                    posCounter = 0;
+
+
+
                     setTimeout(() => computerShoot(), TIMEOUT)
                 } else {
                     playerBoardArray[cords.x][cords.y] = MISS;
+                }
+            }
+        }
+
+        function markPositionsAround(cords) {
+            for (let i = cords.x - 1; i <= cords.x + 1; i++) {
+                for (let l = cords.y - 1; l <= cords.y + 1; l++) {
+                    if (i >= 0 && l >= 0 && i < BOARD_SIZE && l < BOARD_SIZE)
+                        if ((i !== cords.x || l !== cords.y) && playerBoardArray[i][l] === 0)
+                            playerBoardArray[i][l] = AROUND_SCORE;
                 }
             }
         }
