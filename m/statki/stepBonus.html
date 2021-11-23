@@ -57,7 +57,7 @@
             float: left;
             width: 100px;
             height: 100px;
-            margin-left: 18px;
+            margin-left: 12px;
             position: relative;
             top: 280px;
         }
@@ -74,11 +74,12 @@
     <script>
         const VERTICAL = true;
         const BOARD_SIZE = 10;
-        const TIMEOUT = 1000;
+        const TIMEOUT = 100;
         const MISS = -9;
 
         let selectedShip = 0;
         let playerBoardArray = Array.from(Array(BOARD_SIZE), () => new Array(BOARD_SIZE));
+        let playerBannedFields = Array.from(Array(BOARD_SIZE), () => new Array(BOARD_SIZE));
         let computerBoardArray = Array.from(Array(BOARD_SIZE), () => new Array(BOARD_SIZE));
         let playerShips = []
         let destroyedShipsPlayer = [];
@@ -119,6 +120,7 @@
             destroyedShipsPlayer = []
             scoresPlayer = []
             playerBoardArray = Array.from(Array(BOARD_SIZE), _ => Array(BOARD_SIZE).fill(0));
+            playerBannedFields = Array.from(Array(BOARD_SIZE), _ => Array(BOARD_SIZE).fill(0));
             computerBoardArray = Array.from(Array(BOARD_SIZE), _ => Array(BOARD_SIZE).fill(0));
 
             renderShipList();
@@ -275,6 +277,7 @@
             if (doesComputerWin()) {
                 lockShoot = true;
                 document.getElementById("score").innerText = "Przegrales :("
+                console.log("test")
 
                 showComputerShips();
                 setTimeout(() => restartGame(), 5000);
@@ -288,6 +291,7 @@
                         fieldsToShoot.shift();
                     } else {
                         cords = {x: drawCoordinate(), y: drawCoordinate()};
+                        if (playerBannedFields[cords.x][cords.y] > 0) continue;
                     }
 
                     value = playerBoardArray[cords.x][cords.y]
@@ -302,7 +306,7 @@
                     lockShoot = true;
                     document.getElementById("p=" + cords.x + "x" + cords.y).innerHTML = "✖"
 
-                    markPositionsAround(cords);
+                    markPositionsAround(cords, value);
 
                     scoresComputer.push(value);
 
@@ -342,15 +346,20 @@
             }
         }
 
-        function markPositionsAround(cords) {
-            for (let i = cords.x - 1; i <= cords.x + 1; i++) {
-                for (let l = cords.y - 1; l <= cords.y + 1; l++) {
-                    if (i >= 0 && l >= 0 && i < BOARD_SIZE && l < BOARD_SIZE)
-                        if (i === cords.x || l === cords.y) {
-                            if (!(i === cords.x && l === cords.y)) {
-                                if (!(playerBoardArray[i][l] <= -9)) {
-                                    fieldsToShoot.push({x: i, y: l})
-                                    document.getElementById("p=" + i + "x" + l).innerText = "O";
+        function markPositionsAround(cords, value) {
+            for (let x = cords.x - 1; x <= cords.x + 1; x++) {
+                for (let y = cords.y - 1; y <= cords.y + 1; y++) {
+                    if (x >= 0 && y >= 0 && x < BOARD_SIZE && y < BOARD_SIZE)
+                        if (!(x === cords.x && y === cords.y)) {
+                            if (playerBannedFields[x][y] === 0) {
+                                playerBannedFields[x][y] = value;
+                            }
+                            if (x === cords.x || y === cords.y) {
+                                if (!(playerBoardArray[x][y] <= -9)) {
+                                    if (playerBannedFields[x][y] === value) {
+                                        fieldsToShoot.push({x: x, y: y})
+                                        document.getElementById("p=" + x + "x" + y).innerText = "O";
+                                    }
                                 }
                             }
                         }

@@ -3,7 +3,7 @@
 			0.5p (cała sekcja)
 				X- sprawdzał w jakim kierunku jest wsawiony trafiony okręt,
 				X- dokańczał go (zatapiał),
-				- nie trafiał w pozostałe jeszcze nie trafiane pola w koło zatopionego okrętu
+				X- nie trafiał w pozostałe jeszcze nie trafiane pola w koło zatopionego okrętu
 			0.5p
 				- bot "sieje" plansze w poszukiwaniu najdłuższego pozostałego do zatopienia statku
 				sprawdzam obserwując czy komputer nie robi bezsensownego ruchu
