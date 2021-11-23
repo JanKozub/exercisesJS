@@ -74,7 +74,7 @@
     <script>
         const VERTICAL = true;
         const BOARD_SIZE = 10;
-        const TIMEOUT = 100;
+        const TIMEOUT = 1000;
         const MISS = -9;
 
         let selectedShip = 0;
@@ -258,6 +258,20 @@
         }
 
         function computerShoot() {
+            for (let x = 0; x < BOARD_SIZE; x++) {
+                for (let y = 0; y < BOARD_SIZE; y++) {
+                    let swt = false;
+                    for (let i = 0; i < fieldsToShoot.length; i++) {
+                        if (fieldsToShoot[i].x === x && fieldsToShoot[i].y === y) {
+                            swt = true;
+                        }
+                    }
+                    if (!swt && document.getElementById("p=" + x + "x" + y).innerText === "O") {
+                        document.getElementById("p=" + x + "x" + y).innerText = "";
+                    }
+                }
+            }
+
             if (doesComputerWin()) {
                 lockShoot = true;
                 document.getElementById("score").innerText = "Przegrales :("
@@ -269,7 +283,6 @@
                 let cords;
                 let value;
                 do {
-                    console.log(fieldsToShoot)
                     if (fieldsToShoot.length > 0) {
                         cords = fieldsToShoot[0];
                         fieldsToShoot.shift();
@@ -337,6 +350,7 @@
                             if (!(i === cords.x && l === cords.y)) {
                                 if (!(playerBoardArray[i][l] <= -9)) {
                                     fieldsToShoot.push({x: i, y: l})
+                                    document.getElementById("p=" + i + "x" + l).innerText = "O";
                                 }
                             }
                         }
