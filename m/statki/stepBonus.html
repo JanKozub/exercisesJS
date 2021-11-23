@@ -118,7 +118,9 @@
         function restartGame() {
             playerShips = [40, 30, 31, 20, 21, 22, 10, 11, 12, 13];
             destroyedShipsPlayer = []
+            destroyedShipsComputer = []
             scoresPlayer = []
+            scoresComputer = []
             playerBoardArray = Array.from(Array(BOARD_SIZE), _ => Array(BOARD_SIZE).fill(0));
             playerBannedFields = Array.from(Array(BOARD_SIZE), _ => Array(BOARD_SIZE).fill(0));
             computerBoardArray = Array.from(Array(BOARD_SIZE), _ => Array(BOARD_SIZE).fill(0));
@@ -232,6 +234,16 @@
             }
         }
 
+        function colorDestroyedShip(array, num) {
+            for (let x = 0; x < BOARD_SIZE; x++) {
+                for (let y = 0; y < BOARD_SIZE; y++) {
+                    if (array[x][y] === (num * -1)) {
+                        setFieldState(array, x, y, "#701d1d", false)
+                    }
+                }
+            }
+        }
+
         function recordShot(newTh, x, y) {
             if (isGameStarted && !lockShoot && computerBoardArray[x][y] >= 0) {
                 if (computerBoardArray[x][y] !== 0) {
@@ -241,10 +253,12 @@
                     scoresPlayer.push(value)
 
                     let num = checkPositionsAround(computerBoardArray, x, y, 2, 2);
-                    if (howManyElementsArrayContains(scoresPlayer, num) === Math.floor(num / 10))
-                        destroyedShipsPlayer.push(num)
-
                     computerBoardArray[x][y] = value * -1;
+
+                    if (howManyElementsArrayContains(scoresPlayer, num) === Math.floor(num / 10)) {
+                        destroyedShipsPlayer.push(num)
+                        colorDestroyedShip(computerBoardArray, num);
+                    }
 
                     if (destroyedShipsPlayer.length === 10) {
                         document.getElementById("score").innerText = "Wygrales!!"
@@ -259,7 +273,7 @@
             }
         }
 
-        function computerShoot() {
+        function debugFieldsToShoot() {
             for (let x = 0; x < BOARD_SIZE; x++) {
                 for (let y = 0; y < BOARD_SIZE; y++) {
                     let swt = false;
@@ -273,77 +287,60 @@
                     }
                 }
             }
+        }
+
+        function computerShoot() {
+            debugFieldsToShoot();
 
             if (doesComputerWin()) {
                 lockShoot = true;
                 document.getElementById("score").innerText = "Przegrales :("
-                console.log("test")
 
                 showComputerShips();
                 setTimeout(() => restartGame(), 5000);
             } else {
                 lockShoot = false;
-                let cords;
-                let value;
-                do {
-                    if (fieldsToShoot.length > 0) {
-                        cords = fieldsToShoot[0];
-                        fieldsToShoot.shift();
-                    } else {
-                        cords = {x: drawCoordinate(), y: drawCoordinate()};
-                        if (playerBannedFields[cords.x][cords.y] > 0) continue;
-                    }
-
-                    value = playerBoardArray[cords.x][cords.y]
-
-                    if (value >= 0) break;
-                } while (true);
+                let cords = getNextField();
+                let fieldValue = playerBoardArray[cords.x][cords.y];
 
                 setFieldState(playerBoardArray, cords.x, cords.y, "red", false)
 
-                if (value > 9 && value !== MISS) {
-                    playerBoardArray[cords.x][cords.y] = value * -1;
+                if (isScored(fieldValue)) {
+                    playerBoardArray[cords.x][cords.y] = fieldValue * -1;
                     lockShoot = true;
                     document.getElementById("p=" + cords.x + "x" + cords.y).innerHTML = "✖"
 
-                    markPositionsAround(cords, value);
-
-                    scoresComputer.push(value);
-
-                    if (lastScored.x !== -1) {
-                        while (true) {
-                            let tester = true;
-                            for (let i = 0; i < fieldsToShoot.length; i++) {
-                                if (cords.x === lastScored.x) {
-                                    if (fieldsToShoot[i].x !== lastScored.x) {
-                                        fieldsToShoot.splice(i, 1)
-                                        tester = false;
-                                    }
-                                } else {
-                                    if (fieldsToShoot[i].y !== lastScored.y) {
-                                        fieldsToShoot.splice(i, 1)
-                                        tester = false;
-                                    }
-                                }
-                            }
-                            if (tester) break;
-                        }
-                    } else {
-                        lastScored = {x: cords.x, y: cords.y}
-                    }
-
-                    if (howManyElementsArrayContains(scoresComputer, value) === getShipSize(value)) {
-                        destroyedShipsPlayer.push(value)
-                        fieldsToShoot = []
-                        lastScored = {x: -1, y: -1}
-                        clearBoard(playerBoardArray, false)
-                    }
+                    markPositionsAround(cords, fieldValue);
+                    scoresComputer.push(fieldValue);
+                    removeImpossibleFields(cords);
+                    markShipIfDestroyed(fieldValue);
 
                     setTimeout(() => computerShoot(), TIMEOUT)
                 } else {
                     playerBoardArray[cords.x][cords.y] = MISS;
                 }
             }
+        }
+
+        function getNextField() {
+            let cords;
+            do {
+                if (fieldsToShoot.length > 0) {
+                    cords = fieldsToShoot[0];
+                    fieldsToShoot.shift();
+                } else {
+                    cords = {x: drawCoordinate(), y: drawCoordinate()};
+                    if (playerBannedFields[cords.x][cords.y] > 0) continue;
+                }
+
+
+                if (playerBoardArray[cords.x][cords.y] >= 0) break;
+            } while (true);
+            return cords;
+        }
+
+        function isScored(fieldValue) {
+            return fieldValue > 9 && fieldValue !== MISS;
         }
 
         function markPositionsAround(cords, value) {
@@ -364,6 +361,39 @@
                             }
                         }
                 }
+            }
+        }
+
+        function removeImpossibleFields(cords) {
+            if (lastScored.x !== -1) {
+                while (true) {
+                    let tester = true;
+                    for (let i = 0; i < fieldsToShoot.length; i++) {
+                        if (cords.x === lastScored.x) {
+                            if (fieldsToShoot[i].x !== lastScored.x) {
+                                fieldsToShoot.splice(i, 1)
+                                tester = false;
+                            }
+                        } else {
+                            if (fieldsToShoot[i].y !== lastScored.y) {
+                                fieldsToShoot.splice(i, 1)
+                                tester = false;
+                            }
+                        }
+                    }
+                    if (tester) break;
+                }
+            } else {
+                lastScored = {x: cords.x, y: cords.y}
+            }
+        }
+
+        function markShipIfDestroyed(fieldValue) {
+            if (howManyElementsArrayContains(scoresComputer, fieldValue) === getShipSize(fieldValue)) {
+                destroyedShipsComputer.push(fieldValue)
+                fieldsToShoot = []
+                lastScored = {x: -1, y: -1}
+                clearBoard(playerBoardArray, false)
             }
         }
 
