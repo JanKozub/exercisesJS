@@ -144,6 +144,8 @@
                         color = "white"
                     } else if (array[x][y] > 9) {
                         color = "blue"
+                    } else if (array[x][y] <= -9 && destroyedShipsComputer.includes(Math.abs(playerBoardArray[x][y]))) {
+                        color = "#701d1d"
                     } else if (array[x][y] <= -9) {
                         color = "red"
                     }
