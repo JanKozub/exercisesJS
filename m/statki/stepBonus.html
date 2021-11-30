@@ -74,7 +74,7 @@
     <script>
         const VERTICAL = true;
         const BOARD_SIZE = 10;
-        const TIMEOUT = 100;
+        const TIMEOUT = 1000;
         const MISS = -9;
 
         let selectedShip = 0;
@@ -264,7 +264,7 @@
 
                     if (destroyedShipsPlayer.length === 10) {
                         document.getElementById("score").innerText = "Wygrales!!"
-                        restartGame();
+                        setTimeout(() => restartGame(), 5000)
                     }
                 } else {
                     lockShoot = true;
@@ -524,6 +524,19 @@
                     counter++;
             }
             return counter;
+        }
+
+        function getMaxElementOfArray() {
+            let max = 0;
+            for (let x = 0; x < BOARD_SIZE; x++) {
+                for (let y = 0; y < BOARD_SIZE; y++) {
+                    let temp = playerBoardArray[x][y];
+                    if (temp > max){
+                        max = temp
+                    }
+                }
+            }
+            return Math.floor(max / 10);
         }
 
         function getShipSize(size) {
