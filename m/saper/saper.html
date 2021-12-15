@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Saper</title>
+    <style>
+        body {
+            user-select: none;
+        }
+
+        table {
+            border-spacing: 0;
+            border: black 1px solid;
+        }
+
+        tr {
+            height: 40px;
+            border: black 1px solid;
+        }
+
+        th {
+            width: 40px;
+            border: black 1px solid;
+        }
+    </style>
+
+</head>
+<script>
+    let BOARD_WIDTH = 10;
+    let BOARD_HEIGHT = 8;
+    let NUMBER_OF_MINES = 20;
+
+    const CLEAR_FIELD = 0;
+    const BOMB = 1;
+
+    let gameBoard;
+
+    window.onload = () => {
+        gameBoard = Array.from(Array(BOARD_HEIGHT), () => new Array(BOARD_WIDTH));
+
+        genBoard();
+
+        console.log(gameBoard)
+    }
+
+    function genBoard() {
+        let board = document.getElementById('board');
+
+        for (let i = 0; i < BOARD_HEIGHT; i++) {
+            let newTr = document.createElement('tr')
+            for (let k = 0; k < BOARD_WIDTH; k++) {
+                gameBoard[i][k] = {x: i, y: k, number: 0, type: 0, tagged: false, view: 0};
+                let newTh = document.createElement('th')
+                newTh.id = k + "x" + i;
+                newTh.style.backgroundColor = "grey"
+                newTh.onclick = () => onFieldClick(i, k)
+                newTr.appendChild(newTh)
+            }
+            board.appendChild(newTr);
+        }
+
+        for (let c = 0; c < NUMBER_OF_MINES; c++) {
+            let toggle = true;
+            do {
+                let width = drawWidth();
+                let height = drawHeight();
+                if (gameBoard[height][width].type === CLEAR_FIELD) {
+                    gameBoard[height][width].type = BOMB;
+                    document.getElementById(width + "x" + height).style.backgroundColor = "red"
+
+                    refreshNumbers();
+                    toggle = false;
+                }
+            } while (toggle)
+        }
+    }
+
+    function drawWidth() {
+        return Math.floor((Math.random() * BOARD_WIDTH));
+    }
+
+    function drawHeight() {
+        return Math.floor((Math.random() * BOARD_HEIGHT));
+    }
+
+    function refreshNumbers() {
+        for (let height = 0; height < BOARD_HEIGHT; height++) {
+            for (let width = 0; width < BOARD_WIDTH; width++) {
+                let counter = 0;
+                for (let x = height - 1; x <= height + 1; x++) {
+                    for (let y = width - 1; y <= width + 1; y++) {
+                        if (x >= 0 && y >= 0 && x < BOARD_HEIGHT && y < BOARD_WIDTH)
+                            if (gameBoard[x][y].type === BOMB) {
+                                counter++;
+                            }
+                    }
+                }
+                document.getElementById(width + "x" + height).innerHTML = counter.toString();
+                gameBoard[height][width].number = counter;
+
+            }
+        }
+    }
+
+    function onFieldClick(height, width) {
+        if (gameBoard[height][width].number === 0) {
+            checkFieldsAround(height, width)
+        }
+    }
+
+    function checkFieldsAround(height, width) {
+        for (let i = height - 1; i <= height + 1; i++) {
+            for (let j = width - 1; j <= width + 1; j++) {
+                console.log(i + " " + j)
+                if (i >= 0 && j >= 0 && i < BOARD_HEIGHT && j < BOARD_WIDTH)
+                    if (gameBoard[i][j].view === 0) {
+                        document.getElementById(j + "x" + i).style.backgroundColor = "yellow";
+                        gameBoard[i][j].view = 1;
+                        if (gameBoard[i][j].number === 0) {
+                            checkFieldsAround(i, j)
+                        }
+                    }
+            }
+        }
+    }
+
+
+</script>
+<body>
+<table id="board">
+
+</table>
+</body>
+</html>

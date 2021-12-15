@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Space invaders</title>
+
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #main {
+            width: 420px;
+            height: 200px;
+            border: black solid 1px;
+        }
+
+        #cannon {
+            width: 20px;
+            height: 20px;
+            background-color: red;
+            position: relative;
+            top: 180px;
+        }
+
+        #ball {
+            width: 5px;
+            height: 5px;
+            background-color: black;
+            position: relative;
+            left: -2000px;
+        }
+
+        .alien {
+            width: 30px;
+            height: 20px;
+            background-color: blue;
+            position: absolute;
+        }
+    </style>
+
+    <script>
+        let lock = false;
+        const BALL_SPEED = 50
+        let mousePosition = 0;
+        let moveSpeed = 800;
+        let moveStep = 30;
+        window.onload = () => {
+            document.getElementById("main").onmousemove = (e) => onMouseMove(e);
+            document.getElementById("main").onclick = () => onClick();
+
+            for (let y = 3; y > 0; y--) {
+                for (let x = 0; x < 5; x++) {
+                    let newDiv = document.createElement('div');
+                    newDiv.className = "alien";
+                    newDiv.id = y + "x" + x;
+                    newDiv.style.left = ((35 * x) + 30) + "px"
+                    newDiv.style.top = ((25 * y) - 20) + "px"
+
+                    setInterval(function () {
+                        if (parseInt(document.getElementById("1x4").style.left) === 380) {
+                            moveStep = -30;
+                            newDiv.style.top = (parseInt(newDiv.style.top) + 25) + "px"
+                        }
+
+                        if (parseInt(document.getElementById("1x4").style.left) === 140) {
+                            moveStep = 30;
+                            newDiv.style.top = (parseInt(newDiv.style.top) + 25) + "px"
+                        }
+
+                        newDiv.style.left = (parseInt(newDiv.style.left) + moveStep) + "px"
+                    }, moveSpeed);
+
+                    document.getElementById("main").insertBefore(newDiv, document.getElementById("cannon"))
+                }
+            }
+        }
+
+        function onMouseMove(e) {
+            mousePosition = e.clientX - 20;
+            if (mousePosition > -2 && mousePosition < 402)
+                document.getElementById("cannon").style.left = mousePosition + "px";
+        }
+
+        function onClick() {
+            if (!lock) {
+                lock = true;
+                let val = mousePosition;
+                console.log(mousePosition)
+                let counter = 0;
+                let interval = setInterval(function () {
+                    let left = (val + 7.5)
+                    let top = (160 - counter)
+                    document.getElementById("ball").style.left = left + "px"
+                    document.getElementById("ball").style.top = top + "px"
+                    counter = counter + 5;
+
+                    for (let i = 0; i < document.getElementsByClassName('alien').length; i++) {
+                        if (parseInt(document.getElementsByClassName('alien')[i].style.left) < left && parseInt(document.getElementsByClassName('alien')[i].style.left) + 30 > left) {
+                            if (parseInt(document.getElementsByClassName('alien')[i].style.top) > top) {
+                                console.log("chuj")
+                            }
+                        }
+                    }
+                    if (counter === 185) {
+                        clearInterval(interval)
+                        lock = false;
+                        document.getElementById("ball").style.top = "-7000px"
+                    }
+                }, BALL_SPEED);
+            }
+        }
+    </script>
+</head>
+<body>
+<div id="main">
+    <div id="cannon"></div>
+    <div id="ball"></div>
+</div>
+</body>
+</html>
