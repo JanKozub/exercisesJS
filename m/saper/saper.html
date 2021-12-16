@@ -11,6 +11,7 @@
         table {
             border-spacing: 0;
             border: black 1px solid;
+            margin: auto;
         }
 
         tr {
@@ -22,6 +23,7 @@
             width: 40px;
             border: black 1px solid;
         }
+
     </style>
 
 </head>
@@ -31,19 +33,27 @@
     let NUMBER_OF_MINES = 20;
 
     const CLEAR_FIELD = 0;
-    const BOMB = 1;
+    const MINE = 1;
 
     let gameBoard;
+    let minesCounter = NUMBER_OF_MINES;
 
     window.onload = () => {
         gameBoard = Array.from(Array(BOARD_HEIGHT), () => new Array(BOARD_WIDTH));
+        refreshScore();
 
         genBoard();
-
-        console.log(gameBoard)
     }
 
     function genBoard() {
+        createTableElement();
+
+        genMines();
+
+        document.getElementById("0x0").innerHTML = '<img src="field.png" alt="test">'
+    }
+
+    function createTableElement() {
         let board = document.getElementById('board');
 
         for (let i = 0; i < BOARD_HEIGHT; i++) {
@@ -52,20 +62,29 @@
                 gameBoard[i][k] = {x: i, y: k, number: 0, type: 0, tagged: false, view: 0};
                 let newTh = document.createElement('th')
                 newTh.id = k + "x" + i;
-                newTh.style.backgroundColor = "grey"
+
+                let img = document.createElement('img');
+                img.src = "field.png"
+                img.alt = "test"
+                // img.style.width = "40px"
                 newTh.onclick = () => onFieldClick(i, k)
+
+                newTh.addEventListener('contextmenu', (ev) => onRightClick(ev, k, i), false);
                 newTr.appendChild(newTh)
+
             }
             board.appendChild(newTr);
         }
+    }
 
+    function genMines() {
         for (let c = 0; c < NUMBER_OF_MINES; c++) {
             let toggle = true;
             do {
                 let width = drawWidth();
                 let height = drawHeight();
                 if (gameBoard[height][width].type === CLEAR_FIELD) {
-                    gameBoard[height][width].type = BOMB;
+                    gameBoard[height][width].type = MINE;
                     document.getElementById(width + "x" + height).style.backgroundColor = "red"
 
                     refreshNumbers();
@@ -90,7 +109,7 @@
                 for (let x = height - 1; x <= height + 1; x++) {
                     for (let y = width - 1; y <= width + 1; y++) {
                         if (x >= 0 && y >= 0 && x < BOARD_HEIGHT && y < BOARD_WIDTH)
-                            if (gameBoard[x][y].type === BOMB) {
+                            if (gameBoard[x][y].type === MINE) {
                                 counter++;
                             }
                     }
@@ -103,18 +122,23 @@
     }
 
     function onFieldClick(height, width) {
-        if (gameBoard[height][width].number === 0) {
+        if (gameBoard[height][width].number === CLEAR_FIELD) {
             checkFieldsAround(height, width)
+        } else {
+            if (gameBoard[height][width].type === MINE) {
+                alert("Przegrales")
+            } else {
+                document.getElementById(width + "x" + height).style.backgroundColor = "lightgrey";
+            }
         }
     }
 
     function checkFieldsAround(height, width) {
         for (let i = height - 1; i <= height + 1; i++) {
             for (let j = width - 1; j <= width + 1; j++) {
-                console.log(i + " " + j)
                 if (i >= 0 && j >= 0 && i < BOARD_HEIGHT && j < BOARD_WIDTH)
                     if (gameBoard[i][j].view === 0) {
-                        document.getElementById(j + "x" + i).style.backgroundColor = "yellow";
+                        document.getElementById(j + "x" + i).style.backgroundColor = "lightgrey";
                         gameBoard[i][j].view = 1;
                         if (gameBoard[i][j].number === 0) {
                             checkFieldsAround(i, j)
@@ -124,11 +148,23 @@
         }
     }
 
+    function refreshScore() {
+        document.getElementById("mines-counter").innerText = "Nieoznaczone bomby: " + minesCounter
+    }
 
+    function onRightClick(ev, x, y) {
+        ev.preventDefault();
+
+        document.getElementById(x + "x" + y).style.backgroundColor = "pink";
+        minesCounter = minesCounter - 1;
+        gameBoard[y][x].tagged = !gameBoard[y][x].tagged;
+
+        refreshScore();
+    }
 </script>
 <body>
-<table id="board">
-
-</table>
+<table id="board"></table>
+<h2 id="mines-counter" style="text-align:center;"></h2>
+<div id="test"></div>
 </body>
 </html>
