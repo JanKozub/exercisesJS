@@ -62,6 +62,7 @@
     let gameLock = true;
     let gameBoard;
     let startTime;
+    let area;
 
     let timer;
     let currentTime
@@ -74,45 +75,43 @@
         let w = getElement("w").value;
         let h = getElement("h").value;
         let mines = getElement("mines").value;
+        area = (w * h)
 
-        if (w >= 0 && h >= 0 && mines >= 0 && mines < (w * h)) {
+        if (w >= 0 && h >= 0 && mines >= 0 && mines < area) {
             BOARD_WIDTH = parseInt(w);
             BOARD_HEIGHT = parseInt(h);
             NUMBER_OF_MINES = parseInt(mines);
 
             startTime = Date.now();
-
             timer = setInterval(refreshTimer, 1)
 
             getElement("values").style.top = "-13000px"
 
             gameBoard = Array.from(Array(BOARD_HEIGHT), () => new Array(BOARD_WIDTH));
             genBoard();
-
             refreshScore();
         }
     }
 
     function genBoard() {
         createTableElement();
-
         genMines();
     }
 
     function createTableElement() {
         let board = document.getElementById('board');
 
-        for (let i = 0; i < BOARD_HEIGHT; i++) {
+        for (let h = 0; h < BOARD_HEIGHT; h++) {
             let newTr = document.createElement('tr')
-            for (let k = 0; k < BOARD_WIDTH; k++) {
-                gameBoard[i][k] = {x: i, y: k, number: 0, type: 0, tag: NONE, view: NOT_VIEWED};
+            for (let w = 0; w < BOARD_WIDTH; w++) {
+                gameBoard[w][h] = {x: w, y: h, id: w + "x" + h, number: 0, type: 0, tag: NONE, view: NOT_VIEWED};
                 let newTh = document.createElement('th')
-                newTh.id = k + "x" + i;
+                newTh.id = w + "x" + h;
                 newTh.style.backgroundImage = "url(field.png)"
 
-                newTh.onclick = () => onFieldClick(i, k)
+                newTh.onclick = () => onFieldClick(w, h)
 
-                newTh.addEventListener('contextmenu', (ev) => onRightClick(ev, k, i), false);
+                newTh.addEventListener('contextmenu', (ev) => onRightClick(ev, w, h), false);
                 newTr.appendChild(newTh)
 
             }
@@ -121,19 +120,19 @@
     }
 
     function genMines() {
-        for (let c = 0; c < NUMBER_OF_MINES; c++) {
+        for (let m = 0; m < NUMBER_OF_MINES; m++) {
             let toggle = true;
             do {
-                let width = drawWidth();
-                let height = drawHeight();
-                if (gameBoard[height][width].type === CLEAR_FIELD) {
-                    gameBoard[height][width].type = MINE;
-
-                    setNumbers();
+                let w = drawWidth();
+                let h = drawHeight();
+                if (gameBoard[w][h].type === CLEAR_FIELD) {
+                    gameBoard[w][h].type = MINE;
                     toggle = false;
+                    document.getElementById(gameBoard[w][h].id).style.backgroundColor = 'red'
                 }
             } while (toggle)
         }
+        setNumbers();
     }
 
     function drawWidth() {
@@ -145,57 +144,70 @@
     }
 
     function setNumbers() {
-        for (let height = 0; height < BOARD_HEIGHT; height++) {
-            for (let width = 0; width < BOARD_WIDTH; width++) {
-                let counter = 0;
-                for (let x = height - 1; x <= height + 1; x++) {
-                    for (let y = width - 1; y <= width + 1; y++) {
-                        if (x >= 0 && y >= 0 && x < BOARD_HEIGHT && y < BOARD_WIDTH)
-                            if (gameBoard[x][y].type === MINE) {
-                                counter++;
-                            }
-                    }
-                }
-                gameBoard[height][width].number = counter;
+        for (let w = 0; w < BOARD_WIDTH; w++) {
+            for (let h = 0; h < BOARD_HEIGHT; h++) {
+                gameBoard[w][h].number = checkSquare(w, h);
             }
         }
     }
 
-    function onFieldClick(height, width) {
-        if (gameLock && gameBoard[height][width].tag === NONE)
-            if (gameBoard[height][width].number === CLEAR_FIELD) {
-                checkFieldsAround(height, width)
-            } else {
-                let field = getField(width, height)
-                if (gameBoard[height][width].type === MINE) {
-                    showBombs();
-
-                    field.style.backgroundImage = "url(bomb.png)";
-                    gameLock = false;
-                    getElement("msg").innerText = "PRZEGRALES :(, czas: " + currentTime;
-                    clearInterval(timer)
-                } else {
-                    field.style.backgroundImage = "";
-                    // if (gameBoard[width][height].number > 0)
-                    field.innerHTML = gameBoard[width][height].number;
-                    gameBoard[height][width].view = VIEWED;
-                }
+    function checkSquare(w, h) {
+        let counter = 0;
+        for (let w2 = w - 1; w2 <= w + 1; w2++) {
+            for (let h2 = h - 1; h2 <= h + 1; h2++) {
+                if (w2 >= 0 && h2 >= 0 && w2 < BOARD_HEIGHT && h2 < BOARD_WIDTH)
+                    if (gameBoard[w2][h2].type === MINE) {
+                        counter++;
+                    }
             }
+        }
+        return counter;
     }
 
-    function checkFieldsAround(height, width) {
-        for (let i = height - 1; i <= height + 1; i++) {
-            for (let j = width - 1; j <= width + 1; j++) {
-                if (i >= 0 && j >= 0 && i < BOARD_HEIGHT && j < BOARD_WIDTH)
-                    if (gameBoard[i][j].view === NOT_VIEWED) {
-                        getField(j, i).style.backgroundImage = "";
-                        if (gameBoard[i][j].number > 0)
-                            getField(j, i).innerHTML = gameBoard[i][j].number;
-                        gameBoard[i][j].view = VIEWED;
-                        if (gameBoard[i][j].number === 0) {
-                            checkFieldsAround(i, j)
+    function onFieldClick(w, h) {
+        if (gameLock && gameBoard[w][h].tag === NONE) {
+            if (gameBoard[w][h].number === CLEAR_FIELD) {
+                checkFieldsAround(w, h)
+            } else {
+                if (gameBoard[w][h].view === NOT_VIEWED) {
+                    let field = getField(w, h);
+                    if (gameBoard[w][h].type === MINE) {
+                        showBombs();
+
+                        gameLock = false;
+                        getElement("msg").innerText = "PRZEGRALES :(, czas: " + currentTime;
+                        clearInterval(timer)
+                    } else {
+                        field.style.backgroundImage = "";
+                        field.innerHTML = gameBoard[w][h].number;
+                        gameBoard[w][h].view = VIEWED;
+                    }
+                }
+            }
+
+            if (sumViewed() === area - NUMBER_OF_MINES) {
+                gameLock = false;
+                getElement("msg").innerText = "WYGRALES!!!!, czas: " + currentTime
+                clearInterval(timer)
+                showBombs()
+            }
+        }
+    }
+
+    function checkFieldsAround(w, h) {
+        for (let w2 = w - 1; w2 <= w + 1; w2++) {
+            for (let h2 = h - 1; h2 <= h + 1; h2++) {
+                if (w2 >= 0 && h2 >= 0 && w2 < BOARD_HEIGHT && h2 < BOARD_WIDTH) {
+                    if (gameBoard[w2][h2].view === NOT_VIEWED) {
+                        gameBoard[w2][h2].view = VIEWED;
+                        getField(w2, h2).style.backgroundImage = "";
+                        if (gameBoard[w2][h2].number > 0) {
+                            getField(w2, h2).innerHTML = gameBoard[w2][h2].number;
+                        } else {
+                            checkFieldsAround(w2, h2)
                         }
                     }
+                }
             }
         }
     }
@@ -204,41 +216,46 @@
         getElement("mines-counter").innerText = "Nieoznaczone bomby: " + sumTagged();
     }
 
-    function onRightClick(ev, x, y) {
+    function onRightClick(ev, w, h) {
         ev.preventDefault();
 
-        if (gameLock && gameBoard[y][x].view === NOT_VIEWED) {
-            let field = getField(x, y)
-            switch (gameBoard[y][x].tag) {
+        if (gameLock && gameBoard[w][h].view === NOT_VIEWED) {
+            let field = getField(w, h)
+            switch (gameBoard[w][h].tag) {
                 case NONE:
                     field.style.backgroundImage = "url(flag.png)";
-                    gameBoard[y][x].tag = FLAG
+                    gameBoard[w][h].tag = FLAG
                     break;
                 case FLAG:
                     field.style.backgroundImage = "url(qm.png)";
-                    gameBoard[y][x].tag = QM;
+                    gameBoard[w][h].tag = QM;
                     break;
                 case QM:
                     field.style.backgroundImage = "url(field.png)";
-                    gameBoard[y][x].tag = NONE;
+                    gameBoard[w][h].tag = NONE;
                     break;
             }
             refreshScore();
         }
+    }
 
-        if (sumTagged() === 0) {
-            gameLock = false;
-            getElement("msg").innerText = "WYGRALES!!!!, czas: " + currentTime
-            clearInterval(timer)
-            showBombs()
+    function sumViewed() {
+        let counter = 0;
+        for (let w = 0; w < BOARD_HEIGHT; w++) {
+            for (let h = 0; h < BOARD_WIDTH; h++) {
+                if (gameBoard[w][h].view === VIEWED) {
+                    counter++;
+                }
+            }
         }
+        return counter;
     }
 
     function sumTagged() {
         let counter = 0;
-        for (let i = 0; i < BOARD_HEIGHT; i++) {
-            for (let k = 0; k < BOARD_WIDTH; k++) {
-                if (gameBoard[i][k].tag === FLAG) {
+        for (let w = 0; w < BOARD_HEIGHT; w++) {
+            for (let h = 0; h < BOARD_WIDTH; h++) {
+                if (gameBoard[w][h].tag === FLAG) {
                     counter++;
                 }
             }
@@ -247,10 +264,10 @@
     }
 
     function showBombs() {
-        for (let i = 0; i < BOARD_HEIGHT; i++) {
-            for (let k = 0; k < BOARD_WIDTH; k++) {
-                if (gameBoard[i][k].type === MINE) {
-                    getField(k, i).style.backgroundImage = "url(pbomb.png)";
+        for (let w = 0; w < BOARD_HEIGHT; w++) {
+            for (let h = 0; h < BOARD_WIDTH; h++) {
+                if (gameBoard[w][h].type === MINE) {
+                    getField(w, h).style.backgroundImage = "url(pbomb.png)";
                 }
             }
         }

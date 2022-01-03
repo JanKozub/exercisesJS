@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Saper object</title>
+    <style>
+        body {
+            user-select: none;
+        }
+
+        table {
+            border-spacing: 0;
+            border: black 1px solid;
+            margin: auto;
+            white-space: nowrap;
+        }
+
+        tr {
+            height: 50px;
+            padding: 0;
+            white-space: nowrap;
+        }
+
+        th {
+            width: 50px;
+            padding: 0;
+            border: black 1px solid;
+            background-size: 100% 100%;
+        }
+
+        #values {
+            position: relative;
+            text-align: center;
+        }
+
+        #valuesButton {
+            position: relative;
+            top: 20px;
+            font-size: 20px;
+        }
+
+        #main {
+            position: relative;
+            top: -200px;
+        }
+    </style>
+    <script>
+        const saper = {
+            BOARD_WIDTH: 0,
+            BOARD_HEIGHT: 0,
+            NUMBER_OF_MINES: 0,
+
+            CLEAR_FIELD: 0,
+            MINE: 1,
+            NONE: 0,
+            FLAG: 1,
+            QM: 2,
+            VIEWED: 1,
+            NOT_VIEWED: 0,
+
+            gameLock: true,
+            gameBoard: [[]],
+            startTime: Date,
+
+            timer: undefined,
+            currentTime: undefined,
+            startGame: () => {
+                let w = saper.getElement("w").value;
+                let h = saper.getElement("h").value;
+                let mines = saper.getElement("mines").value;
+
+                if (w >= 0 && h >= 0 && mines >= 0 && mines < (w * h)) {
+                    BOARD_WIDTH = parseInt(w);
+                    BOARD_HEIGHT = parseInt(h);
+                    NUMBER_OF_MINES = parseInt(mines);
+
+                    startTime = Date.now();
+
+                    timer = setInterval(saper.refreshTimer, 1)
+
+                    saper.getElement("values").style.top = "-13000px"
+
+                    gameBoard = Array.from(Array(BOARD_HEIGHT), () => new Array(BOARD_WIDTH));
+                    saper.genBoard();
+
+                    saper.refreshScore();
+                }
+            },
+            genBoard: () => {
+                saper.createTableElement();
+
+                saper.genMines();
+            },
+            createTableElement: () => {
+                let board = document.getElementById('board');
+
+                for (let i = 0; i < BOARD_HEIGHT; i++) {
+                    let newTr = document.createElement('tr')
+                    for (let k = 0; k < BOARD_WIDTH; k++) {
+                        gameBoard[i][k] = {x: i, y: k, number: 0, type: 0, tag: saper.NONE, view: saper.NOT_VIEWED};
+                        let newTh = document.createElement('th')
+                        newTh.id = k + "x" + i;
+                        newTh.style.backgroundImage = "url(field.png)"
+
+                        newTh.onclick = () => saper.onFieldClick(i, k)
+
+                        newTh.addEventListener('contextmenu', (ev) => saper.onRightClick(ev, k, i), false);
+                        newTr.appendChild(newTh)
+
+                    }
+                    board.appendChild(newTr);
+                }
+            },
+            onRightClick: (ev, x, y) => {
+                ev.preventDefault();
+
+                if (saper.gameLock && gameBoard[y][x].view === saper.NOT_VIEWED) {
+                    let field = saper.getField(x, y)
+                    switch (gameBoard[y][x].tag) {
+                        case saper.NONE:
+                            field.style.backgroundImage = "url(flag.png)";
+                            gameBoard[y][x].tag = saper.FLAG
+                            break;
+                        case saper.FLAG:
+                            field.style.backgroundImage = "url(qm.png)";
+                            gameBoard[y][x].tag = saper.QM;
+                            break;
+                        case saper.QM:
+                            field.style.backgroundImage = "url(field.png)";
+                            gameBoard[y][x].tag = saper.NONE;
+                            break;
+                    }
+                    saper.refreshScore();
+                }
+
+                if (saper.sumTagged() === 0) {
+                    saper.gameLock = false;
+                    saper.getElement("msg").innerText = "WYGRALES!!!!, czas: " + currentTime
+                    clearInterval(timer)
+                    saper.showBombs()
+                }
+            },
+            onFieldClick: (height, width) => {
+                if (saper.gameLock && gameBoard[height][width].tag === saper.NONE)
+                    if (gameBoard[height][width].number === saper.CLEAR_FIELD) {
+                        saper.checkFieldsAround(height, width)
+                    } else {
+                        let field = saper.getField(width, height)
+                        if (gameBoard[height][width].type === saper.MINE) {
+                            saper.showBombs();
+
+                            field.style.backgroundImage = "url(bomb.png)";
+                            saper.gameLock = false;
+                            saper.getElement("msg").innerText = "PRZEGRALES :(, czas: " + currentTime;
+                            clearInterval(timer)
+                        } else {
+                            field.style.backgroundImage = "";
+                            // if (gameBoard[width][height].number > 0)
+                            field.innerHTML = gameBoard[width][height].number;
+                            gameBoard[height][width].view = saper.VIEWED;
+                        }
+                    }
+            },
+            checkFieldsAround: (height, width) => {
+                for (let i = height - 1; i <= height + 1; i++) {
+                    for (let j = width - 1; j <= width + 1; j++) {
+                        if (i >= 0 && j >= 0 && i < BOARD_HEIGHT && j < BOARD_WIDTH)
+                            if (gameBoard[i][j].view === saper.NOT_VIEWED) {
+                                saper.getField(j, i).style.backgroundImage = "";
+                                if (gameBoard[i][j].number > 0)
+                                    saper.getField(j, i).innerHTML = gameBoard[i][j].number;
+                                gameBoard[i][j].view = saper.VIEWED;
+                                if (gameBoard[i][j].number === 0) {
+                                    saper.checkFieldsAround(i, j)
+                                }
+                            }
+                    }
+                }
+            },
+            showBombs: () => {
+                for (let i = 0; i < BOARD_HEIGHT; i++) {
+                    for (let k = 0; k < BOARD_WIDTH; k++) {
+                        if (gameBoard[i][k].type === saper.MINE) {
+                            saper.getField(k, i).style.backgroundImage = "url(pbomb.png)";
+                        }
+                    }
+                }
+            },
+            sumTagged: () => {
+                let counter = 0;
+                for (let i = 0; i < BOARD_HEIGHT; i++) {
+                    for (let k = 0; k < BOARD_WIDTH; k++) {
+                        if (gameBoard[i][k].tag === saper.FLAG) {
+                            counter++;
+                        }
+                    }
+                }
+                return NUMBER_OF_MINES - counter;
+            },
+            genMines: () => {
+                for (let c = 0; c < NUMBER_OF_MINES; c++) {
+                    let toggle = true;
+                    do {
+                        let width = saper.drawWidth();
+                        let height = saper.drawHeight();
+                        if (gameBoard[height][width].type === saper.CLEAR_FIELD) {
+                            gameBoard[height][width].type = saper.MINE;
+                            // document.getElementById(height + 'x' + width).style.backgroundColor = 'red';
+                            toggle = false;
+                        }
+                    } while (toggle)
+                }
+                saper.setNumbers();
+            },
+            refreshScore: () => {
+                saper.getElement("mines-counter").innerText = "Nieoznaczone bomby: " + saper.sumTagged();
+            },
+            setNumbers: () => {
+                for (let height = 0; height < BOARD_HEIGHT; height++) {
+                    for (let width = 0; width < BOARD_WIDTH; width++) {
+                        let counter = 0;
+                        for (let x = height - 1; x <= height + 1; x++) {
+                            for (let y = width - 1; y <= width + 1; y++) {
+                                if (x >= 0 && y >= 0 && x < BOARD_HEIGHT && y < BOARD_WIDTH)
+                                    if (gameBoard[x][y].type === saper.MINE) {
+                                        counter++;
+                                    }
+                            }
+                        }
+                        gameBoard[height][width].number = counter;
+                        document.getElementById(height + 'x' + width).innerHTML = counter.toString();
+                    }
+                }
+            },
+            refreshTimer: () => {
+                let date = new Date(Date.now() - startTime);
+                let ms = date.getMilliseconds();
+                if (ms < 100) {
+                    ms = ms * 10;
+                }
+                currentTime = date.getMinutes() + ":" + date.getSeconds() + "." + ms;
+                saper.getElement("msg").innerText = currentTime;
+            },
+            getElement: (name) => {
+                return document.getElementById(name);
+            },
+            drawWidth: () => {
+                return Math.floor((Math.random() * BOARD_WIDTH));
+            },
+            drawHeight: () => {
+                return Math.floor((Math.random() * BOARD_HEIGHT));
+            },
+            getField: (x, y) => {
+                return document.getElementById(x + "x" + y);
+            }
+        }
+
+        window.onload = () => {
+            document.getElementById("valuesButton").onclick = saper.startGame;
+        }
+    </script>
+</head>
+<body>
+<div id="values">
+    <label>
+        <h2 style="text-align:center;">Wysokosc:</h2>
+        <input id="w" type="number" min="0" value="10">
+    </label>
+    <label>
+        <h2 style="text-align:center;">Szerokosc:</h2>
+        <input id="h" type="number" min="0" value="10">
+    </label>
+    <label>
+        <h2 style="text-align:center;">Ilosc bomb:</h2>
+        <input id="mines" type="number" min="0" value="15">
+    </label>
+    <br>
+    <button id="valuesButton">Generuj</button>
+</div>
+<div id="main">
+    <h2 id="msg" style="text-align:center;"></h2>
+    <table id="board"></table>
+    <h2 id="mines-counter" style="text-align:center;"></h2>
+    <div id="test"></div>
+</div>
+</body>
+</html>
