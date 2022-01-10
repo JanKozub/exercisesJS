@@ -43,6 +43,23 @@
             position: relative;
             top: -200px;
         }
+
+        h1 {
+            position: relative;
+            top: 50px;
+        }
+
+        #records {
+            width: 500px;
+            height: 500px;
+            position: relative;
+            top: 50px;
+        }
+
+        #inputs {
+            position: relative;
+            top: 40px;
+        }
     </style>
     <script>
         const saper = {
@@ -181,6 +198,14 @@
                         saper.getElement("msg").innerText = "WYGRALES!!!!, czas: " + saper.currentTime
                         clearInterval(saper.timer)
                         saper.showBombs()
+
+                        let nick = prompt('Podaj swoj nick');
+                        document.cookie =
+                            nick + '=' +
+                            saper.getElement("w").value + ' ' +
+                            saper.getElement("h").value + ' ' +
+                            saper.currentTime + ' ' +
+                            saper.NUMBER_OF_MINES + ';'
                     }
                 }
             },
@@ -279,6 +304,68 @@
 
         window.onload = () => {
             document.getElementById("valuesButton").onclick = saper.startGame;
+
+            renderRecords();
+            //
+            // document.cookie = 'test1=5 5 1:30.200 15;'
+            // document.cookie = 'test2=5 5 1:50.200 10;'
+            // document.cookie = 'test3=5 5 1:30.250 10;'
+            // document.cookie = 'test4=5 5 1:15.000 10;'
+
+            document.getElementById('wys').addEventListener('change', renderRecords);
+            document.getElementById('szer').addEventListener('change', renderRecords);
+        }
+
+        function renderRecords() {
+            const cookies = document.cookie;
+            let allRecords = cookies.split(';')
+
+            allRecords.sort((a, b) => {
+                return a.split('=')[1].split(' ')[2].localeCompare(b.split('=')[1].split(' ')[2])
+            });
+
+            const recordsElement = document.getElementById('records');
+            recordsElement.innerHTML = '<tr style="height: 10px">\n' +
+                '            <th style="border-bottom: 3px solid black">Miejsce</th>\n' +
+                '            <th style="border-bottom: 3px solid black">Nick</th>\n' +
+                '            <th style="border-bottom: 3px solid black">Wys.</th>\n' +
+                '            <th style="border-bottom: 3px solid black">Szer.</th>\n' +
+                '            <th style="border-bottom: 3px solid black">Czas</th>\n' +
+                '            <th style="border-bottom: 3px solid black">Miny:</th>\n' +
+                '        </tr>'
+
+            const records = allRecords.filter(e => {
+                if (e !== '') {
+                    const values = e.split('=')[1].split(' ');
+                    if (document.getElementById('wys').value === values[0] &&
+                        document.getElementById('szer').value === values[1] &&
+                        document.getElementById('miny').value === values[3]) {
+                        return e;
+                    }
+                }
+            })
+
+            for (let i = 0; i < records.length; i++) {
+                let newTr = document.createElement('tr')
+
+                let subarray = records[i].split('=')
+
+                let newTh = document.createElement('th')
+                newTh.innerText = (i + 1).toString();
+                newTr.appendChild(newTh)
+
+                let newTh2 = document.createElement('th')
+                newTh2.innerText = records[i].split('=')[0];
+                newTr.appendChild(newTh2)
+
+                let subarray2 = subarray[1].split(' ')
+                for (let k = 0; k < subarray2.length; k++) {
+                    let newTh = document.createElement('th')
+                    newTh.innerText = subarray2[k];
+                    newTr.appendChild(newTh)
+                }
+                recordsElement.appendChild(newTr);
+            }
         }
     </script>
 </head>
@@ -298,6 +385,26 @@
     </label>
     <br>
     <button id="valuesButton">Generuj</button>
+
+    <h1>REKORDY</h1>
+    <div id="inputs">
+        <label>
+            Wys:
+            <input type="number" placeholder="wpisz wysokosc" value="5" id="wys">
+        </label>
+        <label>
+            Szer:
+            <input type="number" placeholder="wpisz wysokosc" value="5" id="szer">
+        </label>
+        <label>
+            Miny:
+            <input type="number" placeholder="wpisz wysokosc" value="10" id="miny">
+        </label>
+    </div>
+    <table id="records">
+
+
+    </table>
 </div>
 <div id="main">
     <h2 id="msg" style="text-align:center;"></h2>
