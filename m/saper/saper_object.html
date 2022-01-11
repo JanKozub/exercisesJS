@@ -41,7 +41,7 @@
 
         #main {
             position: relative;
-            top: -200px;
+            top: -800px;
         }
 
         h1 {
@@ -51,7 +51,7 @@
 
         #records {
             width: 500px;
-            height: 500px;
+            height: 400px;
             position: relative;
             top: 50px;
         }
@@ -205,7 +205,7 @@
                             saper.getElement("w").value + ' ' +
                             saper.getElement("h").value + ' ' +
                             saper.currentTime + ' ' +
-                            saper.NUMBER_OF_MINES + ';'
+                            NUMBER_OF_MINES + ';'
                     }
                 }
             },
@@ -314,6 +314,7 @@
 
             document.getElementById('wys').addEventListener('change', renderRecords);
             document.getElementById('szer').addEventListener('change', renderRecords);
+            document.getElementById('miny').addEventListener('change', renderRecords);
         }
 
         function renderRecords() {
