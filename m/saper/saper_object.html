@@ -6,6 +6,8 @@
     <style>
         body {
             user-select: none;
+            overflow: hidden;
+            margin: 0;
         }
 
         table {
@@ -41,24 +43,28 @@
 
         #main {
             position: relative;
-            top: -800px;
+            top: -500px;
         }
 
         h1 {
             position: relative;
-            top: 50px;
+            top: 20px;
+        }
+
+        h2 {
+            margin: 10px;
         }
 
         #records {
             width: 500px;
             height: 400px;
             position: relative;
-            top: 50px;
+            top: 30px;
         }
 
         #inputs {
             position: relative;
-            top: 40px;
+            top: 10px;
         }
     </style>
     <script>
@@ -144,7 +150,6 @@
                         if (gameBoard[w][h].type === saper.CLEAR_FIELD) {
                             gameBoard[w][h].type = saper.MINE;
                             toggle = false;
-                            document.getElementById(gameBoard[w][h].id).style.backgroundColor = 'red'
                         }
                     } while (toggle)
                 }
@@ -303,18 +308,12 @@
         }
 
         window.onload = () => {
-            document.getElementById("valuesButton").onclick = saper.startGame;
-
             renderRecords();
-            //
-            // document.cookie = 'test1=5 5 1:30.200 15;'
-            // document.cookie = 'test2=5 5 1:50.200 10;'
-            // document.cookie = 'test3=5 5 1:30.250 10;'
-            // document.cookie = 'test4=5 5 1:15.000 10;'
 
             document.getElementById('wys').addEventListener('change', renderRecords);
             document.getElementById('szer').addEventListener('change', renderRecords);
             document.getElementById('miny').addEventListener('change', renderRecords);
+            document.getElementById("valuesButton").onclick = saper.startGame;
         }
 
         function renderRecords() {
@@ -347,25 +346,28 @@
             })
 
             for (let i = 0; i < records.length; i++) {
-                let newTr = document.createElement('tr')
+                if (i < 10) {
+                    let newTr = document.createElement('tr')
 
-                let subarray = records[i].split('=')
+                    console.log()
+                    let subarray = records[i].split('=')
 
-                let newTh = document.createElement('th')
-                newTh.innerText = (i + 1).toString();
-                newTr.appendChild(newTh)
-
-                let newTh2 = document.createElement('th')
-                newTh2.innerText = records[i].split('=')[0];
-                newTr.appendChild(newTh2)
-
-                let subarray2 = subarray[1].split(' ')
-                for (let k = 0; k < subarray2.length; k++) {
                     let newTh = document.createElement('th')
-                    newTh.innerText = subarray2[k];
+                    newTh.innerText = (i + 1).toString();
                     newTr.appendChild(newTh)
+
+                    let newTh2 = document.createElement('th')
+                    newTh2.innerText = records[i].split('=')[0];
+                    newTr.appendChild(newTh2)
+
+                    let subarray2 = subarray[1].split(' ')
+                    for (let k = 0; k < subarray2.length; k++) {
+                        let newTh = document.createElement('th')
+                        newTh.innerText = subarray2[k];
+                        newTr.appendChild(newTh)
+                    }
+                    recordsElement.appendChild(newTr);
                 }
-                recordsElement.appendChild(newTr);
             }
         }
     </script>
