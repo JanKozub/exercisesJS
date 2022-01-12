@@ -7,11 +7,10 @@
     <style>
         #game-board {
             border: 1px solid black;
-            width: 500px;
-            height: 500px;
+            width: 700px;
+            height: 700px;
             position: absolute;
-            top: calc((100vh - 500px) / 2);
-            left: calc((100vw - 500px) / 2);
+            left: calc((100vw - 1000px) / 2);
         }
 
         tr {
@@ -28,8 +27,8 @@
 
     <script>
 
-        BOARD_WIDTH = 20;
-        BOARD_HEIGHT = 20;
+        BOARD_WIDTH = 15;
+        BOARD_HEIGHT = 15;
         UP = 0;
         RIGHT = 1;
         DOWN = 2;
@@ -88,7 +87,7 @@
                 if (apple.x === snake.x && apple.y === snake.y) {
                     snake.size = snake.size + 1;
                     generateApple();
-                    snake.speed = snake.speed * 0.9;
+                    snake.speed = snake.speed * 0.99;
                     clearInterval(interval)
                     setInterval(moveSnake, snake.speed)
                 }
