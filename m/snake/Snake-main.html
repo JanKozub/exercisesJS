@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Snake</title>
+
+    <style>
+        #game-board {
+            border: 1px solid black;
+            width: 500px;
+            height: 500px;
+            position: absolute;
+            top: calc((100vh - 500px) / 2);
+            left: calc((100vw - 500px) / 2);
+        }
+
+        tr {
+            width: 10px;
+            height: 10px;
+        }
+
+        td {
+            border: 1px solid black;
+            width: 10px;
+            height: 10px;
+        }
+    </style>
+
+    <script>
+
+        BOARD_WIDTH = 20;
+        BOARD_HEIGHT = 20;
+        UP = 0;
+        RIGHT = 1;
+        DOWN = 2;
+        LEFT = 3;
+
+        let gameLock = false;
+
+        let snake = {
+            x: 10,
+            y: 10,
+            dir: RIGHT,
+            size: 1,
+            speed: 300,
+        };
+
+        let apple = {
+            x: 0,
+            y: 0
+        }
+
+        let positions = []
+        let interval = undefined;
+
+        window.onload = () => {
+            generateBoard();
+
+            generateApple();
+
+            interval = setInterval(moveSnake, 300);
+        }
+
+        window.onkeydown = (e) => onKeyPress(e);
+
+        function moveSnake() {
+            if (!gameLock) {
+                switch (snake.dir) {
+                    case UP:
+                        snake.y = snake.y - 1;
+                        break;
+                    case DOWN:
+                        snake.y = snake.y + 1;
+                        break;
+                    case RIGHT:
+                        snake.x = snake.x + 1;
+                        break;
+                    case LEFT:
+                        snake.x = snake.x - 1;
+                        break;
+                }
+
+                if (positionsContains(snake.x, snake.y) || snake.x < 0 || snake.y < 0 || snake.x >= BOARD_WIDTH || snake.y >= BOARD_HEIGHT) {
+                    gameLock = true;
+                    alert("przegrales")
+                }
+
+                if (apple.x === snake.x && apple.y === snake.y) {
+                    snake.size = snake.size + 1;
+                    generateApple();
+                    snake.speed = snake.speed * 0.9;
+                    clearInterval(interval)
+                    setInterval(moveSnake, snake.speed)
+                }
+
+                positions.push({x: snake.x, y: snake.y})
+                if (positions.length > snake.size) {
+                    document.getElementById(positions[0].y + 'x' + positions[0].x).style.backgroundColor = 'white'
+                    positions.shift();
+                }
+                document.getElementById(snake.y + 'x' + snake.x).style.backgroundColor = 'red'
+            }
+        }
+
+        function onKeyPress(e) {
+            switch (e.key) {
+                case 'ArrowDown':
+                    snake.dir = DOWN;
+                    break;
+                case 'ArrowUp':
+                    snake.dir = UP;
+                    break;
+                case 'ArrowRight':
+                    snake.dir = RIGHT;
+                    break;
+                case 'ArrowLeft':
+                    snake.dir = LEFT;
+                    break;
+            }
+        }
+
+        function generateApple() {
+            apple.x = Math.floor((Math.random() * BOARD_WIDTH));
+            apple.y = Math.floor((Math.random() * BOARD_HEIGHT));
+
+            document.getElementById(apple.y + 'x' + apple.x).style.backgroundColor = 'yellow'
+        }
+
+        function generateBoard() {
+            for (let h = 0; h < BOARD_HEIGHT; h++) {
+                let tr = document.createElement('tr');
+                for (let w = 0; w < BOARD_WIDTH; w++) {
+                    let td = document.createElement('td');
+                    td.id = h + 'x' + w;
+                    tr.appendChild(td);
+                }
+                document.getElementById('game-board').appendChild(tr);
+            }
+        }
+
+        function positionsContains(w, h) {
+            for (let p = 0; p < positions.length; p++) {
+                if (positions[p].x === w && positions[p].y === h) {
+                    return true;
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+<table id="game-board"></table>
+</body>
+</html>
