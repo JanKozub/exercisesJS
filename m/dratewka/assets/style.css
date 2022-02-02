@@ -1,0 +1,28 @@
+@font-face {
+    font-family: mainFont;
+    src: url(fonts/PressStart2P.ttf);
+}
+
+body {
+    font-family: mainFont, serif;
+    background-color: #393939;
+    color: #A5A2B2;
+    font-size: 7px;
+    user-select: none;
+    -moz-user-select: none;
+}
+
+#main-image {
+    border: 1px white solid;
+    user-select: none;
+}
+
+#main-input {
+    font-family: mainFont, serif;
+    background-color: #393939;
+    color: #A5A2B2;
+}
+
+#main-input:focus-visible {
+    outline: unset;
+}
