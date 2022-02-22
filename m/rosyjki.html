@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="author" content="Мацей Мендела и Антони Боргош">
+    <title>Rosyjski</title>
+
+    <script>
+        window.onload = () => {
+            let samogloski = ['а', 'и', 'о', 'у', 'э', 'ы', 'я', 'е', 'ё', 'ю']
+            let spolgloski = ['б', 'в', 'г', 'д', 'ж', 'з', 'й', 'к', 'л', 'м', 'н', 'п', 'р', 'с', 'т', 'ф', 'х', 'ц', 'ч', 'ш', 'щ'];
+            let doWyjebania = ['ут', 'ют', 'ат', 'ят'];
+
+            let input = document.getElementById("in")
+            input.onkeydown = (e) => {
+                if (e.keyCode === 13) {
+                    obliczajot();
+                }
+            }
+
+            document.getElementById('akcent').onchange = () => {
+                obliczajot();
+            }
+
+            function obliczajot() {
+                let val = input.value;
+                val = val.split('')
+                let ostatnieDwie = val[val.length - 2] + val[val.length - 1];
+
+                if (doWyjebania.includes(ostatnieDwie)) {
+                    val.pop()
+                    val.pop()
+                    if (samogloski.includes(val[val.length - 1])) {
+                        val.push('й');
+                        document.getElementById('out').value = val.join('')
+                    } else if (spolgloski.includes(val[val.length - 1]) && spolgloski.includes(val[val.length - 2])) {
+                        val.push('и')
+                        document.getElementById('out').value = val.join('')
+                    } else {
+                        if (!document.getElementById('akcent').checked) {
+                            val.push('и́')
+                            document.getElementById('out').value = val.join('')
+                        } else {
+                            val.push('ь')
+                            document.getElementById('out').value = val.join('')
+                        }
+                    }
+                } else {
+                    console.log('nie wyjebane')
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background: url("pobrane.jpg");
+            font-family: "Comic Sans MS", serif;
+        }
+
+        #title {
+            color: red;
+            font-size: 60px;
+            background: black;
+            text-align: center;
+        }
+
+        input {
+            width: 400px;
+            height: 100px;
+            font-size: 70px;
+        }
+
+        label {
+            color: yellow;
+            background: black;
+        }
+
+        h2 {
+            color: blue;
+            background: black;
+        }
+    </style>
+</head>
+<body>
+<h1 id="title">КАРТОННЫЙ ГЕНЕРАТОР 2.0 (для дебилы)</h1>
+
+<label for="in">Slowo:
+    <input id="in">
+</label>
+<label for="akcent">facetka podkreslila temat:
+    <input type="checkbox" id="akcent" style="width: 80px">
+</label>
+<label for="out">Wynik dla debila:
+    <input id="out" disabled>
+</label>
+
+<h2>Temat - to jest slowo bez 2 ostatnich liter (jakby odcinasz mordo)</h2>
+</body>
+</html>
