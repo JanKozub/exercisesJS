@@ -15,4 +15,27 @@ export class InputHandler {
         document.getElementById(layout).style.visibility = v2;
         document.getElementById('main-input').focus();
     }
+
+    checkDirection(pos, cmd, dirs) {
+        if (dirs.includes(cmd)) {
+            switch (cmd) {
+                case 'NORTH':
+                    pos = {w: pos.w, h: pos.h - 1}
+                    break;
+                case 'EAST':
+                    pos = {w: pos.w + 1, h: pos.h}
+                    break;
+                case 'SOUTH':
+                    pos = {w: pos.w, h: pos.h + 1}
+                    break;
+                case 'WEST':
+                    pos = {w: pos.w - 1, h: pos.h}
+                    break;
+            }
+            console.log('You are going ' + cmd.toLowerCase() + '...')
+            return pos;
+        } else {
+            console.log('You can\'t go that way')
+        }
+    }
 }

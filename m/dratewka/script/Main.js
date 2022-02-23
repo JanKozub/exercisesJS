@@ -1,8 +1,10 @@
-    import {Field} from "./Field.js";
+import {Field} from "./Field.js";
 import {InputHandler} from "./inputHandler.js";
 
 export class Game {
     map = Array.from(Array(6), _ => Array(7).fill(undefined));
+    allDirs = ['WEST', 'SOUTH', 'EAST', 'NORTH']
+    dirs;
     position = {w: 6, h: 3}
     inputHandler = new InputHandler();
     vocabShown = false;
@@ -34,11 +36,14 @@ export class Game {
     }
 
     renderBoard() {
-        console.log(this.map)
         let currentField = this.map[this.position.h][this.position.w];
         document.getElementById('msg-text').innerText = currentField.msg;
         document.getElementById('dir-text').innerText = currentField.dir;
-        document.getElementById('main-image').style.backgroundColor = currentField.color;
+        let mainImg = document.getElementById('main-image');
+        mainImg.style.backgroundColor = currentField.color;
+        let src = "" + (this.position.h + 1) + (this.position.w + 1);
+        mainImg.src = 'assets/img/' + (this.position.h+1) + '/' + src + '.gif'
+        this.dirs = currentField.dir.split(', ');
     }
 
     checkInput(str) {
@@ -56,6 +61,9 @@ export class Game {
         } else if (cmd === 'GOSSIPS' || cmd === 'G') {
             this.gossipsShown = true;
             this.inputHandler.printMsg(true, 'gossips-layout');
+        } else if (this.allDirs.includes(cmd)) {
+            this.position = this.inputHandler.checkDirection(this.position, cmd, this.dirs);
+            this.renderBoard();
         }
     }
 
