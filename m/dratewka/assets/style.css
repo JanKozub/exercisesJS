@@ -26,3 +26,15 @@ body {
 #main-input:focus-visible {
     outline: unset;
 }
+
+#vocab-layout {
+    visibility: hidden;
+    position: relative;
+    top: -96px;
+}
+
+#gossips-layout {
+    visibility: hidden;
+    position: relative;
+    top: -150px;
+}

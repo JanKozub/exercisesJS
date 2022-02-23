@@ -10,8 +10,10 @@
     <script type="module">
         import {Game} from "./script/Main.js";
 
+        let game;
+
         window.onload = () => {
-            let game = new Game();
+            game = new Game();
 
             game.start();
         }
@@ -19,9 +21,8 @@
         let mainInput = document.getElementById('main-input')
         window.onmouseover = () => mainInput.focus();
         window.onclick = () => mainInput.focus();
-        mainInput.oninput = () => {
-            mainInput.value = mainInput.value.toUpperCase();
-        };
+
+        mainInput.onchange = () => game.checkInput(mainInput.value);
 
         document.getElementById('main-image').onclick = () => {
             document.getElementById('main-input').focus()
@@ -32,13 +33,37 @@
 <body>
 <p id="msg-text">Main text</p>
 <img spellcheck="false" draggable="false" id="main-image" src="assets/img/1/11.gif" alt="main-img">
-<p id="dir-text">Dir text</p>
-<p id="see-text">See text</p>
-<p id="backpack-text">Backpack text</p>
-<br>
-<p>What now?</p>
-<label for="main-input">
-    <input id="main-input" type="text">
-</label>
+<div id="main-layout">
+    <p id="dir-text">Dir text</p>
+    <p id="see-text">See text</p>
+    <p id="backpack-text">Backpack text</p>
+    <br>
+    <p>What now?</p>
+    <label for="main-input">
+        <input id="main-input" type="text">
+    </label>
+</div>
+<div id="vocab-layout">
+    <p>
+        NORTH or N, SOUTH or S<br>
+        WEST or W, EAST or E<br>
+        TAKE (object) or T (object)<br>
+        DROP (object) or D (object)<br>
+        USE (object) or U (object)<br>
+        GOSSIPS or G, VOCABULARY or V<br>
+        Press any key<br>
+    </p>
+</div>
+<div id="gossips-layout">
+    <p>
+        The  woodcutter lost  his home key...<br>
+        The butcher likes fruit... The cooper<br>
+        is greedy... Dratewka plans to make a<br>
+        poisoned  bait for the dragon...  The<br>
+        tavern owner is buying food  from the<br>
+        pickers... Making a rag from a bag...<br>
+        Press any key
+    </p>
+</div>
 </body>
 </html>
