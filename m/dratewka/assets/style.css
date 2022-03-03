@@ -38,3 +38,41 @@ body {
     position: relative;
     top: -150px;
 }
+
+#msg {
+    font-size: 10px;
+    visibility: hidden;
+    position: relative;
+    top: -25px;
+}
+
+.hider {
+    width: 10px;
+    height: 10px;
+    background-color: #393939;
+    position: absolute;
+}
+
+#hide-n {
+    top: 41px;
+    left: 201px;
+    visibility: hidden;
+}
+
+#hide-e {
+    top: 58px;
+    left: 259px;
+    visibility: hidden;
+}
+
+#hide-s {
+    top: 96px;
+    left: 205px;
+    visibility: hidden;
+}
+
+#hide-w {
+    top: 58px;
+    left: 150px;
+    visibility: hidden;
+}

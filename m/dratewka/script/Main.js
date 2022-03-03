@@ -6,6 +6,7 @@ export class Game {
     allDirs = ['WEST', 'SOUTH', 'EAST', 'NORTH']
     dirs;
     position = {w: 6, h: 3}
+    itemInBackpack = 0;
     inputHandler = new InputHandler();
     vocabShown = false;
     gossipsShown = false;
@@ -24,6 +25,13 @@ export class Game {
             }
         };
 
+        let input = document.getElementById('main-input');
+        input.onkeydown = (e) => {
+            if (e.key === 'Enter') {
+                this.checkInput(input.value);
+            }
+        }
+
         this.genBoard();
 
         this.renderBoard();
@@ -31,7 +39,7 @@ export class Game {
 
     genBoard() {
         for (const e of data.entries) {
-            this.map[e.h][e.w] = new Field(e.w, e.h, e.msg, e.color, e.dir);
+            this.map[e.h][e.w] = new Field(e.w, e.h, e.msg, e.color, e.dir, e.itemId);
         }
     }
 
@@ -39,14 +47,26 @@ export class Game {
         let currentField = this.map[this.position.h][this.position.w];
         document.getElementById('msg-text').innerText = currentField.msg;
         document.getElementById('dir-text').innerText = currentField.dir;
+
         let mainImg = document.getElementById('main-image');
         mainImg.style.backgroundColor = currentField.color;
         let src = "" + (this.position.h + 1) + (this.position.w + 1);
-        mainImg.src = 'assets/img/' + (this.position.h+1) + '/' + src + '.gif'
+        mainImg.src = 'assets/img/' + (this.position.h + 1) + '/' + src + '.gif'
+
         this.dirs = currentField.dir.split(', ');
+        for (let i = 0; i < this.allDirs.length; i++) {
+            let el = document.getElementById('hide-' + this.allDirs[i].charAt(0).toLowerCase());
+            if (!this.dirs.includes(this.allDirs[i])) {
+                console.log(this.allDirs[i])
+                el.style.visibility = 'visible';
+            } else {
+                el.style.visibility = 'hidden';
+            }
+        }
     }
 
     checkInput(str) {
+        console.log('input entered')
         let cmd = str.split(' ')[0];
 
         if (cmd === 'TAKE' || cmd === 'T') {
@@ -54,7 +74,7 @@ export class Game {
         } else if (cmd === 'DROP' || cmd === 'D') {
             this.drop();
         } else if (cmd === 'USE' || cmd === 'U') {
-            this.use();
+            this.inputHandler.use();
         } else if (cmd === 'VOCABULARY' || cmd === 'V') {
             this.vocabShown = true;
             this.inputHandler.printMsg(true, 'vocab-layout');
@@ -74,10 +94,5 @@ export class Game {
     drop() {
         console.log('drop')
     }
-
-    use() {
-
-    }
-
 }
 

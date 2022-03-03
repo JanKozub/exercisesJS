@@ -1,4 +1,9 @@
 export class InputHandler {
+
+    use() {
+
+    }
+
     printMsg(swt, layout) {
         let v1;
         let v2;
@@ -32,10 +37,24 @@ export class InputHandler {
                     pos = {w: pos.w - 1, h: pos.h}
                     break;
             }
-            console.log('You are going ' + cmd.toLowerCase() + '...')
-            return pos;
+            this.showQuickMsg('You are going ' + cmd + '...');
         } else {
-            console.log('You can\'t go that way')
+            this.showQuickMsg('You can\'t go that way');
         }
+        return pos;
+    }
+
+    showQuickMsg(message) {
+        let input = document.getElementById('main-input');
+        let msg = document.getElementById('msg');
+        input.style.visibility = 'hidden';
+        msg.innerText = message;
+        msg.style.visibility = 'visible';
+        setTimeout(() => {
+            input.style.visibility = 'visible';
+            msg.style.visibility = 'hidden';
+            input.value = '';
+            input.focus();
+        }, 1500);
     }
 }
