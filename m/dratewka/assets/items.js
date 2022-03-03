@@ -56,117 +56,117 @@ let items = {
         },
         {
             "id": 19,
-            "title": "",
-            "flag": 0,
-            "name": ""
+            "title": "WOOL",
+            "flag": 1,
+            "name": "WOOL"
         },
         {
             "id": 20,
-            "title": "",
+            "title": "a sheepskin",
             "flag": 0,
-            "name": ""
+            "name": "sheepskin"
         },
         {
             "id": 21,
-            "title": "",
-            "flag": 0,
-            "name": ""
+            "title": "BAG",
+            "flag": 1,
+            "name": "BAG"
         },
         {
             "id": 22,
-            "title": "",
-            "flag": 0,
-            "name": ""
+            "title": "RAG",
+            "flag": 1,
+            "name": "RAG"
         },
         {
             "id": 23,
-            "title": "",
+            "title": "a sheephead",
             "flag": 0,
-            "name": ""
+            "name": "sheephead"
         },
         {
             "id": 24,
-            "title": "",
+            "title": "a SPADE",
             "flag": 0,
-            "name": ""
+            "name": "SPADE"
         },
         {
             "id": 25,
-            "title": "",
-            "flag": 0,
-            "name": ""
+            "title": "SULPHUR",
+            "flag": 1,
+            "name": "SULPHUR"
         },
         {
             "id": 26,
-            "title": "",
+            "title": "a solid poison",
             "flag": 0,
-            "name": ""
+            "name": "solid poison"
         },
         {
             "id": 27,
-            "title": "",
-            "flag": 0,
-            "name": ""
+            "title": "a BUCKET",
+            "flag": 1,
+            "name": "BUCKET"
         },
         {
             "id": 28,
-            "title": "",
-            "flag": 0,
-            "name": ""
+            "title": "TAR",
+            "flag": 1,
+            "name": "TAR"
         },
         {
             "id": 29,
-            "title": "",
+            "title": "a liquid poison",
             "flag": 0,
-            "name": ""
+            "name": "liquid poison"
         },
         {
             "id": 30,
-            "title": "",
+            "title": "a dead dragon",
             "flag": 0,
-            "name": ""
+            "name": "dead dragon"
         },
         {
             "id": 31,
-            "title": "",
-            "flag": 0,
-            "name": ""
+            "title": "a STONE",
+            "flag": 1,
+            "name": "STONE"
         },
         {
             "id": 32,
-            "title": "",
-            "flag": 0,
-            "name": ""
+            "title": "a FISH",
+            "flag": 1,
+            "name": "FISH"
         },
         {
             "id": 33,
-            "title": "",
-            "flag": 0,
-            "name": ""
+            "title": "a KNIFE",
+            "flag": 1,
+            "name": "KNIFE"
         },
         {
             "id": 34,
-            "title": "",
-            "flag": 0,
-            "name": ""
+            "title": "a DRAGONSKIN",
+            "flag": 1,
+            "name": "DRAGONSKIN"
         },
         {
             "id": 35,
-            "title": "",
-            "flag": 0,
-            "name": ""
+            "title": "a dragonskin SHOES",
+            "flag": 1,
+            "name": "SHOES"
         },
         {
             "id": 36,
-            "title": "",
-            "flag": 0,
-            "name": ""
+            "title": "a PRIZE",
+            "flag": 1,
+            "name": "PRIZE"
         },
         {
             "id": 37,
-            "title": "",
-            "flag": 0,
-            "name": ""
+            "title": "a SHEEP",
+            "flag": 1,
+            "name": "SHEEP"
         }
     ]
 }
