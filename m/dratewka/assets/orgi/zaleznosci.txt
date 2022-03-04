@@ -1,0 +1,26 @@
+ZALEŻNOŚCI:
+użyty_przedmiot (id_przedmiotu), lokacja (YX), wynik_użycia (id_przedmiotu), komunikat, OK (kamień milowy)
+- nowy przedmiot zwykle ląduje w dłoni. Oznaczono "L" jeśli na lokacji (części owcy)
+- przedmiot po użyciu znika z rąk
+uwaga: ilość "L" dokładnie taka sama jak **flag 0 - część owcy na lokacji 43 (przedpola pieczary)
+
+10, 56, 11, You opened a tool shed and took an axe
+11, 67, 12, You cut sticks for sheeplegs
+12, 43, 13(L), You prepared legs for your fake sheep, OK
+14, 34, 15, The tavern owner paid you money
+15, 37, 16, The cooper sold you a new barrel
+16, 43, 17(L), You made a nice sheeptrunk, OK
+18, 36, 19, The butcher gave you wool
+19, 43, 20(L), You prepared skin for your fake sheep, OK
+21, 57, 22, You used your tools to make a rag
+22, 43, 23(L), You made a fake sheephead, OK
+24, 11, 25, You are digging... (timeout) and digging... (timeout) That's enough sulphur for you
+25, 43, 26(L), You prepared a solid poison, OK
+27, 21, 28, You got a bucket full of tar
+28, 43, 29(L), You prepared a liquid poison, OK
+gdy zebrane wszystkie przedmioty (6*OK), 43, 37, Your fake sheep is full of poison and ready to be eaten by the dragon
+37, 43, 30(L), The dragon noticed your gift... (timeout) The dragon ate your sheep and died! - podmiana grafiki na lokacji (martwy smok)!
+33, 43 + zabity smok, 34, You cut a piece of dragon's skin
+34, 57, 35, You used your tools to make shoes
+35, 41, 36, The King is impressed by your shoes
+36 -> koniec gry - załadowanie odpowiedniej grafiki
