@@ -24,8 +24,6 @@
         window.onmouseover = () => mainInput.focus();
         window.onclick = () => mainInput.focus();
 
-        mainInput.onchange = () => game.checkInput(mainInput.value);
-
         document.getElementById('main-image').onclick = () => {
             document.getElementById('main-input').focus()
         };

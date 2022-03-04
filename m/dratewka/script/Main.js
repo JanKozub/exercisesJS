@@ -48,6 +48,7 @@ export class Game {
     checkInput(str) {
         console.log('input entered')
         let cmd = str.split(' ')[0];
+        cmd = this.replaceDir(cmd);
 
         if (cmd === 'TAKE' || cmd === 'T') {
             this.take();
@@ -65,7 +66,6 @@ export class Game {
             this.position = this.inputHandler.checkDirection(this.position, cmd, this.dirs);
             this.dirs = this.boardRenderer.renderBoard(this.map, this.position);
         }
-        console.log(this.position)
     }
 
     take() {
@@ -74,6 +74,20 @@ export class Game {
 
     drop() {
         console.log('drop')
+    }
+
+    replaceDir(cmd) {
+        switch (cmd) {
+            case 'W':
+                return 'WEST';
+            case 'E':
+                return 'EAST';
+            case 'S':
+                return 'SOUTH';
+            case 'N':
+                return 'NORTH';
+        }
+        return cmd;
     }
 }
 

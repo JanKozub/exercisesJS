@@ -23,7 +23,6 @@ export class BoardRenderer {
 
         let textField = document.getElementById('see-text');
         if (currentField.itemId !== 0) {
-            console.log(currentField.itemId)
             for (const i of items) {
                 if (currentField.itemId === i.id) {
                     textField.innerText = "You see " + i.title;
