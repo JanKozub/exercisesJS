@@ -1,5 +1,6 @@
 import {Field} from "./Field.js";
 import {InputHandler} from "./inputHandler.js";
+import {BoardRenderer} from "./BoardRenderer.js";
 
 export class Game {
     map = Array.from(Array(6), _ => Array(7).fill(undefined));
@@ -8,6 +9,7 @@ export class Game {
     position = {w: 6, h: 3}
     itemInBackpack = 0;
     inputHandler = new InputHandler();
+    boardRenderer = new BoardRenderer(this.allDirs);
     vocabShown = false;
     gossipsShown = false;
 
@@ -34,34 +36,12 @@ export class Game {
 
         this.genBoard();
 
-        this.renderBoard();
+        this.dirs = this.boardRenderer.renderBoard(this.map, this.position);
     }
 
     genBoard() {
-        for (const e of data.entries) {
+        for (const e of entries) {
             this.map[e.h][e.w] = new Field(e.w, e.h, e.msg, e.color, e.dir, e.itemId);
-        }
-    }
-
-    renderBoard() {
-        let currentField = this.map[this.position.h][this.position.w];
-        document.getElementById('msg-text').innerText = currentField.msg;
-        document.getElementById('dir-text').innerText = currentField.dir;
-
-        let mainImg = document.getElementById('main-image');
-        mainImg.style.backgroundColor = currentField.color;
-        let src = "" + (this.position.h + 1) + (this.position.w + 1);
-        mainImg.src = 'assets/img/' + (this.position.h + 1) + '/' + src + '.gif'
-
-        this.dirs = currentField.dir.split(', ');
-        for (let i = 0; i < this.allDirs.length; i++) {
-            let el = document.getElementById('hide-' + this.allDirs[i].charAt(0).toLowerCase());
-            if (!this.dirs.includes(this.allDirs[i])) {
-                console.log(this.allDirs[i])
-                el.style.visibility = 'visible';
-            } else {
-                el.style.visibility = 'hidden';
-            }
         }
     }
 
@@ -83,8 +63,9 @@ export class Game {
             this.inputHandler.printMsg(true, 'gossips-layout');
         } else if (this.allDirs.includes(cmd)) {
             this.position = this.inputHandler.checkDirection(this.position, cmd, this.dirs);
-            this.renderBoard();
+            this.dirs = this.boardRenderer.renderBoard(this.map, this.position);
         }
+        console.log(this.position)
     }
 
     take() {
