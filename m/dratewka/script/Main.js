@@ -1,5 +1,5 @@
 import {Field} from "./Field.js";
-import {InputHandler} from "./inputHandler.js";
+import {InputHandler} from "./InputHandler.js";
 import {BoardRenderer} from "./BoardRenderer.js";
 
 export class Game {
@@ -36,7 +36,11 @@ export class Game {
 
         this.genBoard();
 
-        this.dirs = this.boardRenderer.renderBoard(this.map, this.position);
+        this.dirs = this.boardRenderer.renderBoard(
+            this.map,
+            this.position,
+            this.inputHandler.findItemByName(this.itemInBackpack)
+        );
     }
 
     genBoard() {
@@ -51,7 +55,12 @@ export class Game {
         cmd = this.replaceDir(cmd);
 
         if (cmd === 'TAKE' || cmd === 'T') {
-            this.take();
+            if (this.itemInBackpack === 0) {
+                let id = this.inputHandler.take(this.map, this.position, str.split(' ')[1]);
+                if (id !== undefined && id !== -1)
+                    this.itemInBackpack = id
+            } else
+                this.inputHandler.showQuickMsg('You are carrying something')
         } else if (cmd === 'DROP' || cmd === 'D') {
             this.drop();
         } else if (cmd === 'USE' || cmd === 'U') {
@@ -66,10 +75,6 @@ export class Game {
             this.position = this.inputHandler.checkDirection(this.position, cmd, this.dirs);
             this.dirs = this.boardRenderer.renderBoard(this.map, this.position);
         }
-    }
-
-    take() {
-        console.log('take')
     }
 
     drop() {

@@ -1,7 +1,36 @@
 export class InputHandler {
 
-    use() {
+    take(map, pos, name) {
+        let item = this.findItemByName(name);
+        let field = map[pos.h][pos.w]
+        if (field.itemId === item.id) {
+            if (item.flag === 1) {
+                this.showQuickMsg('You are taking ' + item.title);
+                document.getElementById('backpack-text').innerText = 'You are carrying ' + item.title;
+                return item.id;
+            } else{
+                this.showQuickMsg('You can\'t carry it')
+            }
+        } else {
+            this.showQuickMsg('There isn\'t anything like that here')
+        }
+    }
 
+    findItemByName(name) {
+        for (const i of items) {
+            if (i.name === name) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    use(pos, currentItem) {
+        for (const e of events) {
+            if (e.h === pos.h && e.w === pos.w && e.used === currentItem) {
+
+            }
+        }
     }
 
     printMsg(swt, layout) {
@@ -55,6 +84,6 @@ export class InputHandler {
             msg.style.visibility = 'hidden';
             input.value = '';
             input.focus();
-        }, 1500);
+        }, 500);
     }
 }
