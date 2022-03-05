@@ -37,14 +37,17 @@ export class BoardRenderer {
 
     setSeeText(currentField) {
         let seeText = document.getElementById('see-text');
-        if (currentField.itemId !== 0) {
+        let list = []
+        if (currentField.itemId.length !== 0) {
             for (const i of items) {
-                if (currentField.itemId === i.id) {
-                    seeText.innerText = "You see " + i.title;
-                    break;
+                if (currentField.itemId.includes(i.id)) {
+                    list.push(i.title);
                 } else {
                     seeText.innerText = "You see nothing";
                 }
+            }
+            if (list.length > 0){
+                seeText.innerText = "You see " + list;
             }
         } else {
             seeText.innerText = "You see nothing";

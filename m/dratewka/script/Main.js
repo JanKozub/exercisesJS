@@ -45,22 +45,19 @@ export class Game {
 
     genBoard() {
         for (const e of entries) {
-            this.map[e.h][e.w] = new Field(e.w, e.h, e.msg, e.color, e.dir, e.itemId);
+            this.map[e.h][e.w] = new Field(e.w, e.h, e.msg, e.color, e.dir, []);
+            this.map[e.h][e.w].itemId.push(e.itemId);
         }
     }
 
     checkInput(str) {
+        console.log(this.map)
         console.log('input entered')
         let cmd = str.split(' ')[0];
         cmd = this.replaceDir(cmd);
 
         if (cmd === 'TAKE' || cmd === 'T') {
-            if (this.itemInBackpack === 0) {
-                let id = this.inputHandler.take(this.map, this.position, str.split(' ')[1]);
-                if (id !== undefined && id !== -1)
-                    this.itemInBackpack = id
-            } else
-                this.inputHandler.showQuickMsg('You are carrying something')
+            this.take();
         } else if (cmd === 'DROP' || cmd === 'D') {
             this.drop();
         } else if (cmd === 'USE' || cmd === 'U') {
@@ -77,8 +74,23 @@ export class Game {
         }
     }
 
+    take() {
+        if (this.itemInBackpack === 0) {
+            let id = this.inputHandler.take(this.map, this.position, str.split(' ')[1]);
+            this.boardRenderer.setSeeText(this.map[this.position.h][this.position.w])
+            if (id !== undefined && id !== -1) {
+                this.itemInBackpack = id
+            }
+        } else
+            this.inputHandler.showQuickMsg('You are carrying something')
+    }
+
     drop() {
-        console.log('drop')
+        const id = this.inputHandler.drop(this.map, this.position, this.itemInBackpack, str.split(' ')[1]);
+        const field = this.map[this.position.h][this.position.w]
+        this.itemInBackpack = 0;
+        field.itemId.push(id);
+        this.boardRenderer.setSeeText(field)
     }
 
     replaceDir(cmd) {

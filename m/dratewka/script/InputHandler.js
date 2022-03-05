@@ -1,19 +1,25 @@
 export class InputHandler {
-
     take(map, pos, name) {
         let item = this.findItemByName(name);
         let field = map[pos.h][pos.w]
-        if (field.itemId === item.id) {
+        if (field.itemId.includes(item.id)) {
             if (item.flag === 1) {
                 this.showQuickMsg('You are taking ' + item.title);
                 document.getElementById('backpack-text').innerText = 'You are carrying ' + item.title;
+                field.itemId = this.arrayRemove(field.itemId, item.id);
                 return item.id;
-            } else{
+            } else {
                 this.showQuickMsg('You can\'t carry it')
             }
         } else {
             this.showQuickMsg('There isn\'t anything like that here')
         }
+    }
+
+    arrayRemove(arr, value) {
+        return arr.filter(function (el) {
+            return el !== value;
+        });
     }
 
     findItemByName(name) {
@@ -23,6 +29,23 @@ export class InputHandler {
             }
         }
         return -1;
+    }
+
+    drop(map, pos, backpackItemId, targetItem) {
+        let item = this.findItemByName(targetItem);
+        const field = map[pos.h][pos.w];
+        if (backpackItemId === 0) {
+            this.showQuickMsg('You are not carrying anything');
+        } else if (field.itemId.length > 3) {
+            this.showQuickMsg('You can\'t store any more here');
+        } else if (backpackItemId !== item.id) {
+            this.showQuickMsg('You are not carrying it');
+        } else {
+            this.showQuickMsg('You are about to drop ' + item.title);
+            document.getElementById('backpack-text')
+                .innerText = 'You are carrying nothing';
+            return item.id;
+        }
     }
 
     use(pos, currentItem) {
