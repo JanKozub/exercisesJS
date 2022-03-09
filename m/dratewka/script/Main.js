@@ -6,8 +6,8 @@ export class Game {
     map = Array.from(Array(6), _ => Array(7).fill(undefined));
     allDirs = ['WEST', 'SOUTH', 'EAST', 'NORTH']
     dirs;
-    position = {w: 5, h: 4} //6, 3
-    itemInBackpack = 10; //0
+    position = {w: 0, h: 0} //6, 3
+    itemInBackpack = 24; //0
     milestones = 0;
     inputHandler = new InputHandler();
     boardRenderer = new BoardRenderer(this.allDirs);
@@ -61,7 +61,7 @@ export class Game {
         } else if (cmd === 'DROP' || cmd === 'D') {
             this.drop(input);
         } else if (cmd === 'USE' || cmd === 'U') {
-            this.use();
+            this.use(input);
         } else if (cmd === 'VOCABULARY' || cmd === 'V') {
             this.vocabShown = true;
             this.inputHandler.printMsg(true, 'vocab-layout');
@@ -84,6 +84,14 @@ export class Game {
             }
         } else
             this.inputHandler.showQuickMsg('You are carrying something')
+    }
+
+    use(input) {
+        let values = this.inputHandler.use(this.position, this.itemInBackpack, input);
+        this.itemInBackpack = values.id;
+        this.milestones = this.milestones + values.m;
+        this.boardRenderer.setBackpackText(this.inputHandler.findItemById(this.itemInBackpack));
+        this.boardRenderer.setSeeText(this.map[this.position.h][this.position.w]);
     }
 
     drop(str) {
@@ -109,14 +117,6 @@ export class Game {
                 return 'NORTH';
         }
         return cmd;
-    }
-
-    use() {
-        let values = this.inputHandler.use(this.position, this.itemInBackpack, input);
-        this.itemInBackpack = values.id;
-        this.milestones = this.milestones + values.m;
-        this.boardRenderer.setBackpackText(this.inputHandler.findItemById(this.itemInBackpack));
-        this.boardRenderer.setSeeText(this.map[this.position.h][this.position.w]);
     }
 }
 

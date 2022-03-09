@@ -58,7 +58,6 @@ export class BoardRenderer {
             document.getElementById('backpack-text')
                 .innerText = 'You are carrying nothing';
         } else {
-            console.log(item)
             document.getElementById('backpack-text').innerText = "You are carrying " +item.title;
         }
     }

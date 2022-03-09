@@ -113,16 +113,23 @@ export class InputHandler {
     }
 
     showQuickMsg(message) {
+        const messages = message.split("(t)");
+        console.log(messages)
         let input = document.getElementById('main-input');
         let msg = document.getElementById('msg');
         input.style.visibility = 'hidden';
-        msg.innerText = message;
+        msg.innerText = messages[0];
         msg.style.visibility = 'visible';
+
         setTimeout(() => {
             input.style.visibility = 'visible';
             msg.style.visibility = 'hidden';
             input.value = '';
             input.focus();
+            if (messages.length > 1) {
+                messages.shift();
+                this.showQuickMsg(messages.join())
+            }
         }, 1000);
     }
 }
