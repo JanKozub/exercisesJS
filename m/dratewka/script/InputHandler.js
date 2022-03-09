@@ -28,7 +28,16 @@ export class InputHandler {
                 return i;
             }
         }
-        return -1;
+        return 0;
+    }
+
+    findItemById(id) {
+        for (const i of items) {
+            if (i.id === id) {
+                return i;
+            }
+        }
+        return 0;
     }
 
     drop(map, pos, backpackItemId, targetItem) {
@@ -42,18 +51,25 @@ export class InputHandler {
             this.showQuickMsg('You are not carrying it');
         } else {
             this.showQuickMsg('You are about to drop ' + item.title);
-            document.getElementById('backpack-text')
-                .innerText = 'You are carrying nothing';
-            return item.id;
+            return true;
         }
+        return false;
     }
 
-    use(pos, currentItem) {
+    use(pos, currentItem, input) {
+        if (this.findItemByName(input.split(' ')[1]).id !== currentItem) {
+            this.showQuickMsg("You aren't carrying anything like that");
+            return {id: -1, m: 0};
+        }
+
         for (const e of events) {
             if (e.h === pos.h && e.w === pos.w && e.used === currentItem) {
-
+                this.showQuickMsg(e.message);
+                return {id: e.result, m: e.milestone};
             }
         }
+        this.showQuickMsg("Nothing happened");
+        return -1;
     }
 
     printMsg(swt, layout) {
@@ -107,6 +123,6 @@ export class InputHandler {
             msg.style.visibility = 'hidden';
             input.value = '';
             input.focus();
-        }, 500);
+        }, 1000);
     }
 }

@@ -6,8 +6,9 @@ export class Game {
     map = Array.from(Array(6), _ => Array(7).fill(undefined));
     allDirs = ['WEST', 'SOUTH', 'EAST', 'NORTH']
     dirs;
-    position = {w: 6, h: 3}
-    itemInBackpack = 0;
+    position = {w: 5, h: 4} //6, 3
+    itemInBackpack = 10; //0
+    milestones = 0;
     inputHandler = new InputHandler();
     boardRenderer = new BoardRenderer(this.allDirs);
     vocabShown = false;
@@ -39,7 +40,7 @@ export class Game {
         this.dirs = this.boardRenderer.renderBoard(
             this.map,
             this.position,
-            this.inputHandler.findItemByName(this.itemInBackpack)
+            this.inputHandler.findItemById(this.itemInBackpack),
         );
     }
 
@@ -50,18 +51,17 @@ export class Game {
         }
     }
 
-    checkInput(str) {
-        console.log(this.map)
+    checkInput(input) {
         console.log('input entered')
-        let cmd = str.split(' ')[0];
+        let cmd = input.split(' ')[0];
         cmd = this.replaceDir(cmd);
 
         if (cmd === 'TAKE' || cmd === 'T') {
-            this.take();
+            this.take(input);
         } else if (cmd === 'DROP' || cmd === 'D') {
-            this.drop();
+            this.drop(input);
         } else if (cmd === 'USE' || cmd === 'U') {
-            this.inputHandler.use();
+            this.use();
         } else if (cmd === 'VOCABULARY' || cmd === 'V') {
             this.vocabShown = true;
             this.inputHandler.printMsg(true, 'vocab-layout');
@@ -70,11 +70,12 @@ export class Game {
             this.inputHandler.printMsg(true, 'gossips-layout');
         } else if (this.allDirs.includes(cmd)) {
             this.position = this.inputHandler.checkDirection(this.position, cmd, this.dirs);
-            this.dirs = this.boardRenderer.renderBoard(this.map, this.position);
+            this.dirs = this.boardRenderer.renderBoard(this.map, this.position,
+                this.inputHandler.findItemById(this.itemInBackpack));
         }
     }
 
-    take() {
+    take(str) {
         if (this.itemInBackpack === 0) {
             let id = this.inputHandler.take(this.map, this.position, str.split(' ')[1]);
             this.boardRenderer.setSeeText(this.map[this.position.h][this.position.w])
@@ -85,12 +86,15 @@ export class Game {
             this.inputHandler.showQuickMsg('You are carrying something')
     }
 
-    drop() {
-        const id = this.inputHandler.drop(this.map, this.position, this.itemInBackpack, str.split(' ')[1]);
-        const field = this.map[this.position.h][this.position.w]
-        this.itemInBackpack = 0;
-        field.itemId.push(id);
-        this.boardRenderer.setSeeText(field)
+    drop(str) {
+        const dropped = this.inputHandler.drop(this.map, this.position, this.itemInBackpack, str.split(' ')[1]);
+        if (dropped) {
+            const field = this.map[this.position.h][this.position.w]
+            field.itemId.push(this.itemInBackpack);
+            this.itemInBackpack = 0;
+            this.boardRenderer.setSeeText(field);
+            this.boardRenderer.setBackpackText(this.itemInBackpack);
+        }
     }
 
     replaceDir(cmd) {
@@ -105,6 +109,14 @@ export class Game {
                 return 'NORTH';
         }
         return cmd;
+    }
+
+    use() {
+        let values = this.inputHandler.use(this.position, this.itemInBackpack, input);
+        this.itemInBackpack = values.id;
+        this.milestones = this.milestones + values.m;
+        this.boardRenderer.setBackpackText(this.inputHandler.findItemById(this.itemInBackpack));
+        this.boardRenderer.setSeeText(this.map[this.position.h][this.position.w]);
     }
 }
 

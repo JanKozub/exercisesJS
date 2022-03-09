@@ -5,16 +5,15 @@ export class BoardRenderer {
         this.allDirs = allDirs;
     }
 
-    renderBoard(map, position) {
+    renderBoard(map, position, backpackItem) {
         let currentField = map[position.h][position.w];
         document.getElementById('msg-text').innerText = currentField.msg;
         document.getElementById('dir-text').innerText = currentField.dir;
 
         this.setImg(position, currentField);
-
         let dirs = this.setAvailableDirections(currentField);
-
         this.setSeeText(currentField);
+        this.setBackpackText(backpackItem);
 
         return dirs;
     }
@@ -51,6 +50,16 @@ export class BoardRenderer {
             }
         } else {
             seeText.innerText = "You see nothing";
+        }
+    }
+
+    setBackpackText(item) {
+        if (item.id === undefined) {
+            document.getElementById('backpack-text')
+                .innerText = 'You are carrying nothing';
+        } else {
+            console.log(item)
+            document.getElementById('backpack-text').innerText = "You are carrying " +item.title;
         }
     }
 }
