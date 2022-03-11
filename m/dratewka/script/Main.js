@@ -17,17 +17,6 @@ export class Game {
     start() {
         console.log("game started!")
 
-        document.onkeydown = () => {
-            if (this.vocabShown) {
-                this.inputHandler.printMsg(false, 'vocab-layout');
-                this.vocabShown = false;
-            }
-            if (this.gossipsShown) {
-                this.inputHandler.printMsg(false, 'gossips-layout');
-                this.gossipsShown = false;
-            }
-        };
-
         let input = document.getElementById('main-input');
         input.onkeydown = (e) => {
             if (e.key === 'Enter') {
@@ -64,10 +53,10 @@ export class Game {
             this.use(input);
         } else if (cmd === 'VOCABULARY' || cmd === 'V') {
             this.vocabShown = true;
-            this.inputHandler.printMsg(true, 'vocab-layout');
+            this.inputHandler.printMsg('vocab-layout');
         } else if (cmd === 'GOSSIPS' || cmd === 'G') {
             this.gossipsShown = true;
-            this.inputHandler.printMsg(true, 'gossips-layout');
+            this.inputHandler.printMsg('gossips-layout');
         } else if (this.allDirs.includes(cmd)) {
             this.position = this.inputHandler.checkDirection(this.position, cmd, this.dirs, this.milestones);
             this.dirs = this.boardRenderer.renderBoard(this.map, this.position,

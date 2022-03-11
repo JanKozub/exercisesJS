@@ -30,13 +30,16 @@ body {
 #vocab-layout {
     visibility: hidden;
     position: relative;
-    top: -96px;
+    top: -102px;
+    left: 1px;
+    line-height: 200%;
 }
 
 #gossips-layout {
     visibility: hidden;
     position: relative;
-    top: -150px;
+    top: -208px;
+    line-height: 200%;
 }
 
 #msg {

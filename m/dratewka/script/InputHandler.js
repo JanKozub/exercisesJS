@@ -57,7 +57,7 @@ export class InputHandler {
     }
 
     use(pos, currentItem, input) {
-        if(currentItem === 36) {
+        if (currentItem === 36) {
             document.body.innerHTML = "<img src=\"./assets/img/final.gif\" alt=\"u won\"/>";
             alert("Brawo wygrales!");
         }
@@ -77,21 +77,20 @@ export class InputHandler {
         return {id: currentItem, m: 0};
     }
 
-    printMsg(swt, layout) {
-        let v1;
-        let v2;
-        if (swt) {
-            v1 = 'hidden';
-            v2 = 'visible';
-        } else {
-            v1 = 'visible'
-            v2 = 'hidden'
-            document.getElementById('main-input').value = '';
-        }
-
-        document.getElementById('main-layout').style.visibility = v1;
-        document.getElementById(layout).style.visibility = v2;
+    printMsg(layout) {
+        document.getElementById('main-layout').style.visibility = 'hidden';
+        document.getElementById(layout).style.visibility = 'visible';
         document.getElementById('main-input').focus();
+
+        setTimeout(() => {
+            document.onkeydown = () => {
+                document.getElementById('main-layout').style.visibility = 'visible';
+                document.getElementById(layout).style.visibility = 'hidden';
+                document.getElementById('main-input').focus();
+                document.getElementById('main-input').value = '';
+                document.onkeydown = undefined;
+            };
+        }, 200);
     }
 
     checkDirection(pos, cmd, dirs, milestones) {
