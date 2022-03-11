@@ -8,7 +8,7 @@ export class BoardRenderer {
     renderBoard(map, position, backpackItem) {
         let currentField = map[position.h][position.w];
         document.getElementById('msg-text').innerText = currentField.msg;
-        document.getElementById('dir-text').innerText = currentField.dir;
+        document.getElementById('dir-text').innerText = "You can go " + currentField.dir;
 
         this.setImg(position, currentField);
         let dirs = this.setAvailableDirections(currentField);

@@ -6,9 +6,9 @@ export class Game {
     map = Array.from(Array(6), _ => Array(7).fill(undefined));
     allDirs = ['WEST', 'SOUTH', 'EAST', 'NORTH']
     dirs;
-    position = {w: 0, h: 0} //6, 3
-    itemInBackpack = 24; //0
-    milestones = 0;
+    position = {w: 6, h: 3} //6, 3
+    itemInBackpack = 0; //0
+    milestones = 0; //0
     inputHandler = new InputHandler();
     boardRenderer = new BoardRenderer(this.allDirs);
     vocabShown = false;
@@ -69,7 +69,7 @@ export class Game {
             this.gossipsShown = true;
             this.inputHandler.printMsg(true, 'gossips-layout');
         } else if (this.allDirs.includes(cmd)) {
-            this.position = this.inputHandler.checkDirection(this.position, cmd, this.dirs);
+            this.position = this.inputHandler.checkDirection(this.position, cmd, this.dirs, this.milestones);
             this.dirs = this.boardRenderer.renderBoard(this.map, this.position,
                 this.inputHandler.findItemById(this.itemInBackpack));
         }

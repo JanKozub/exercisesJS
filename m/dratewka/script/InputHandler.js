@@ -57,9 +57,14 @@ export class InputHandler {
     }
 
     use(pos, currentItem, input) {
+        if(currentItem === 36) {
+            document.body.innerHTML = "<img src=\"./assets/img/final.gif\" alt=\"u won\"/>";
+            alert("Brawo wygrales!");
+        }
+
         if (this.findItemByName(input.split(' ')[1]).id !== currentItem) {
             this.showQuickMsg("You aren't carrying anything like that");
-            return {id: -1, m: 0};
+            return {id: currentItem, m: 0};
         }
 
         for (const e of events) {
@@ -69,7 +74,7 @@ export class InputHandler {
             }
         }
         this.showQuickMsg("Nothing happened");
-        return -1;
+        return {id: currentItem, m: 0};
     }
 
     printMsg(swt, layout) {
@@ -89,7 +94,8 @@ export class InputHandler {
         document.getElementById('main-input').focus();
     }
 
-    checkDirection(pos, cmd, dirs) {
+    checkDirection(pos, cmd, dirs, milestones) {
+        let block = false;
         if (dirs.includes(cmd)) {
             switch (cmd) {
                 case 'NORTH':
@@ -102,10 +108,20 @@ export class InputHandler {
                     pos = {w: pos.w, h: pos.h + 1}
                     break;
                 case 'WEST':
-                    pos = {w: pos.w - 1, h: pos.h}
+                    if (pos.w === 1 && pos.h === 3) {
+                        if (milestones === 6) {
+                            pos = {w: pos.w - 1, h: pos.h}
+                        } else {
+                            block = true;
+                            this.showQuickMsg("You can't go that way... (t) The dragon sleeps in a cave!");
+                        }
+                    } else {
+                        pos = {w: pos.w - 1, h: pos.h}
+                    }
                     break;
             }
-            this.showQuickMsg('You are going ' + cmd + '...');
+            if (!block)
+                this.showQuickMsg('You are going ' + cmd + '...');
         } else {
             this.showQuickMsg('You can\'t go that way');
         }
@@ -114,7 +130,6 @@ export class InputHandler {
 
     showQuickMsg(message) {
         const messages = message.split("(t)");
-        console.log(messages)
         let input = document.getElementById('main-input');
         let msg = document.getElementById('msg');
         input.style.visibility = 'hidden';
@@ -128,7 +143,7 @@ export class InputHandler {
             input.focus();
             if (messages.length > 1) {
                 messages.shift();
-                this.showQuickMsg(messages.join())
+                this.showQuickMsg(messages.join("(t)"))
             }
         }, 1000);
     }
