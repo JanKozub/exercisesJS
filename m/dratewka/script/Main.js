@@ -11,8 +11,6 @@ export class Game {
     milestones = 0; //0
     inputHandler = new InputHandler();
     boardRenderer = new BoardRenderer(this.allDirs);
-    vocabShown = false;
-    gossipsShown = false;
 
     start() {
         console.log("game started!")
@@ -45,22 +43,21 @@ export class Game {
         let cmd = input.split(' ')[0];
         cmd = this.replaceDir(cmd);
 
-        if (cmd === 'TAKE' || cmd === 'T') {
-            this.take(input);
-        } else if (cmd === 'DROP' || cmd === 'D') {
+        if (cmd === 'TAKE' || cmd === 'T') this.take(input);
+        else if (cmd === 'DROP' || cmd === 'D')
             this.drop(input);
-        } else if (cmd === 'USE' || cmd === 'U') {
+        else if (cmd === 'USE' || cmd === 'U')
             this.use(input);
-        } else if (cmd === 'VOCABULARY' || cmd === 'V') {
-            this.vocabShown = true;
+        else if (cmd === 'VOCABULARY' || cmd === 'V')
             this.inputHandler.printMsg('vocab-layout');
-        } else if (cmd === 'GOSSIPS' || cmd === 'G') {
-            this.gossipsShown = true;
+        else if (cmd === 'GOSSIPS' || cmd === 'G') {
             this.inputHandler.printMsg('gossips-layout');
         } else if (this.allDirs.includes(cmd)) {
             this.position = this.inputHandler.checkDirection(this.position, cmd, this.dirs, this.milestones);
             this.dirs = this.boardRenderer.renderBoard(this.map, this.position,
                 this.inputHandler.findItemById(this.itemInBackpack));
+        } else {
+            this.inputHandler.showQuickMsg("Try another word or V for vocabulary");
         }
     }
 
