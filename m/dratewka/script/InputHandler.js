@@ -59,7 +59,8 @@ export class InputHandler {
     use(pos, currentItem, input) {
         if (currentItem === 36) {
             document.body.innerHTML = "<img src=\"./assets/img/final.gif\" alt=\"u won\"/>";
-            alert("Brawo wygrales!");
+        } else if(currentItem === 37) {
+            document.getElementById('main-image').src = 'assets/img/dragon.bmp';
         }
 
         if (this.findItemByName(input.split(' ')[1]).id !== currentItem) {
