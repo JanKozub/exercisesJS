@@ -17,7 +17,24 @@
         window.onload = () => {
             game = new Game();
 
-            game.start();
+            const gameElement = document.getElementById('game');
+            gameElement.style.visibility = 'hidden';
+            const imgElement = document.getElementById('start-img');
+
+            let audio = document.getElementById('start-audio');
+            audio.play();
+            window.onkeydown = () => {
+                imgElement.src = "assets/img/start_A.jpg"
+                window.onkeydown = () => {
+                    imgElement.src = "assets/img/start_B.jpg"
+                    window.onkeydown = () => {
+                        imgElement.style.visibility = 'hidden';
+                        gameElement.style.visibility = 'visible';
+                        audio.pause();
+                        game.start();
+                    }
+                }
+            }
         }
 
         let mainInput = document.getElementById('main-input');
@@ -31,45 +48,52 @@
     </script>
 </head>
 <body>
-<p id="msg-text">Main text</p>
-<img spellcheck="false" draggable="false" id="main-image" src="assets/img/1/11.gif" alt="main-img">
-<img spellcheck="false" draggable="false" id="compass-image" src="assets/img/compass.png" alt="main-img">
-<div id="main-layout">
-    <p id="dir-text">Dir text</p>
-    <p id="see-text">You see nothing</p>
-    <p id="backpack-text">You are carrying nothing</p>
-    <br>
-    <p>What now?</p>
-    <label for="main-input">
-        <input id="main-input" type="text">
-    </label>
+<img src="assets/img/start.jpg" id="start-img" alt="start">
+<audio id="start-audio">
+    <source src="assets/audio/start.mp3" type="audio/mpeg">
+</audio>
+
+<div id="game">
+    <p id="msg-text">Main text</p>
+    <img spellcheck="false" draggable="false" id="main-image" src="assets/img/1/11.gif" alt="main-img">
+    <img spellcheck="false" draggable="false" id="compass-image" src="assets/img/compass.png" alt="main-img">
+    <div id="main-layout">
+        <p id="dir-text">Dir text</p>
+        <p id="see-text">You see nothing</p>
+        <p id="backpack-text">You are carrying nothing</p>
+        <br>
+        <p>What now?</p>
+        <label for="main-input">
+            <input id="main-input" type="text">
+        </label>
+    </div>
+    <p id="msg"></p>
+    <div id="vocab-layout">
+        <p>
+            NORTH or N, SOUTH or S<br>
+            WEST or W, EAST or E<br>
+            TAKE (object) or T (object)<br>
+            DROP (object) or D (object)<br>
+            USE (object) or U (object)<br>
+            GOSSIPS or G, VOCABULARY or V<br>
+            Press any key<br>
+        </p>
+    </div>
+    <div id="gossips-layout">
+        <p>
+            The woodcutter lost his home key...<br>
+            The butcher likes fruit... The cooper<br>
+            is greedy... Dratewka plans to make a<br>
+            poisoned bait for the dragon... The<br>
+            tavern owner is buying food from the<br>
+            pickers... Making a rag from a bag...<br>
+            Press any key
+        </p>
+    </div>
+    <div id="hide-n" class="hider"></div>
+    <div id="hide-e" class="hider"></div>
+    <div id="hide-s" class="hider"></div>
+    <div id="hide-w" class="hider"></div>
 </div>
-<p id="msg"></p>
-<div id="vocab-layout">
-    <p>
-        NORTH or N, SOUTH or S<br>
-        WEST or W, EAST or E<br>
-        TAKE (object) or T (object)<br>
-        DROP (object) or D (object)<br>
-        USE (object) or U (object)<br>
-        GOSSIPS or G, VOCABULARY or V<br>
-        Press any key<br>
-    </p>
-</div>
-<div id="gossips-layout">
-    <p>
-        The  woodcutter lost  his home key...<br>
-        The butcher likes fruit... The cooper<br>
-        is greedy... Dratewka plans to make a<br>
-        poisoned  bait for the dragon...  The<br>
-        tavern owner is buying food  from the<br>
-        pickers... Making a rag from a bag...<br>
-        Press any key
-    </p>
-</div>
-<div id="hide-n" class="hider"></div>
-<div id="hide-e" class="hider"></div>
-<div id="hide-s" class="hider"></div>
-<div id="hide-w" class="hider"></div>
 </body>
 </html>

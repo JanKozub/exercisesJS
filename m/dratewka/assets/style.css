@@ -10,6 +10,7 @@ body {
     font-size: 7px;
     user-select: none;
     -moz-user-select: none;
+    overflow: hidden;
 }
 
 #main-image {
@@ -78,4 +79,17 @@ body {
     top: 58px;
     left: 150px;
     visibility: hidden;
+}
+
+#game {
+    position: absolute;
+    top: 0;
+    zoom: 3.5;
+    left: 131px;
+}
+
+#start-img {
+    position: relative;
+    zoom: 2.0;
+    left: 215px;
 }
