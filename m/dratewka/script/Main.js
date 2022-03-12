@@ -29,11 +29,6 @@ export class Game {
             this.position,
             this.inputHandler.findItemById(this.itemInBackpack),
         );
-
-        document.getElementById('test').onclick = () => {
-            this.position = {w: 2, h: 3};
-            this.boardRenderer.renderBoard(this.map, this.position, this.itemInBackpack)
-        }
     }
 
     genBoard() {

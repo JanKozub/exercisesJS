@@ -45,7 +45,7 @@ export class InputHandler {
         const field = map[pos.h][pos.w];
         if (backpackItemId === 0) {
             this.showQuickMsg('You are not carrying anything');
-        } else if (field.itemId.length > 3) {
+        } else if (field.itemId.length > 3 && item.flag === 1) {
             this.showQuickMsg('You can\'t store any more here');
         } else if (backpackItemId !== item.id) {
             this.showQuickMsg('You are not carrying it');
@@ -59,7 +59,7 @@ export class InputHandler {
     use(pos, currentItem, input) {
         if (currentItem === 36) {
             document.body.innerHTML = "<img src=\"./assets/img/final.gif\" alt=\"u won\"/>";
-        } else if(currentItem === 37) {
+        } else if (currentItem === 37) {
             document.getElementById('main-image').src = 'assets/img/dragon.bmp';
         }
 
