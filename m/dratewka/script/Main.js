@@ -29,6 +29,11 @@ export class Game {
             this.position,
             this.inputHandler.findItemById(this.itemInBackpack),
         );
+
+        document.getElementById('test').onclick = () => {
+            this.position = {w: 2, h: 3};
+            this.boardRenderer.renderBoard(this.map, this.position, this.itemInBackpack)
+        }
     }
 
     genBoard() {
@@ -74,8 +79,18 @@ export class Game {
 
     use(input) {
         let values = this.inputHandler.use(this.position, this.itemInBackpack, input);
-        this.itemInBackpack = values.id;
-        this.milestones = this.milestones + values.m;
+        if (values.m === 0){
+            this.itemInBackpack = values.id;
+        } else {
+            this.itemInBackpack = 0;
+            this.milestones++;
+            this.map[3][2].itemId.push(values.id);
+            if (this.milestones === 6) {
+                this.map[3][2].itemId = [];
+                this.inputHandler.showQuickMsg(events[14].message);
+                this.itemInBackpack = 37;
+            }
+        }
         this.boardRenderer.setBackpackText(this.inputHandler.findItemById(this.itemInBackpack));
         this.boardRenderer.setSeeText(this.map[this.position.h][this.position.w]);
     }

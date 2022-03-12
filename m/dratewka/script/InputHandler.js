@@ -145,6 +145,6 @@ export class InputHandler {
                 messages.shift();
                 this.showQuickMsg(messages.join("(t)"))
             }
-        }, 1000);
+        }, 2000);
     }
 }
