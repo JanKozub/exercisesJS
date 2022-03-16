@@ -22,6 +22,7 @@ body {
     font-family: mainFont, serif;
     background-color: #393939;
     color: #A5A2B2;
+    text-transform: uppercase;
 }
 
 #main-input:focus-visible {
@@ -82,14 +83,9 @@ body {
 }
 
 #game {
-    position: absolute;
-    top: 0;
-    zoom: 3.5;
-    left: 131px;
+    zoom: 1.8;
 }
 
 #start-img {
-    position: relative;
-    zoom: 2.0;
-    left: 215px;
+    position: absolute;
 }

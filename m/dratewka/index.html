@@ -21,8 +21,8 @@
             gameElement.style.visibility = 'hidden';
             const imgElement = document.getElementById('start-img');
 
-            let audio = document.getElementById('start-audio');
-            audio.play();
+            document.getElementById('audio-btn').onclick = playAudio;
+
             window.onkeydown = () => {
                 imgElement.src = "assets/img/start_A.jpg"
                 window.onkeydown = () => {
@@ -30,7 +30,8 @@
                     window.onkeydown = () => {
                         imgElement.style.visibility = 'hidden';
                         gameElement.style.visibility = 'visible';
-                        audio.pause();
+                        document.getElementById('audio-btn').style.visibility = 'hidden';
+                        pauseAudio();
                         game.start();
                     }
                 }
@@ -45,11 +46,22 @@
         document.getElementById('main-image').onclick = () => {
             document.getElementById('main-input').focus();
         };
+
+        function playAudio() {
+            let audio = document.getElementById('start-audio');
+            audio.play();
+        }
+
+        function pauseAudio() {
+            let audio = document.getElementById('start-audio');
+            audio.pause();
+        }
     </script>
 </head>
 <body>
+<button id="audio-btn">pusc audio</button>
 <img src="assets/img/start.jpg" id="start-img" alt="start">
-<audio id="start-audio">
+<audio id="start-audio" autoplay="autoplay">
     <source src="assets/audio/start.mp3" type="audio/mpeg">
 </audio>
 

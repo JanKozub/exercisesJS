@@ -39,6 +39,7 @@ export class Game {
     }
 
     checkInput(input) {
+        input = input.toUpperCase();
         console.log('input entered')
         let cmd = input.split(' ')[0];
         cmd = this.replaceDir(cmd);
