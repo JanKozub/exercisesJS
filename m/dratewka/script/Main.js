@@ -6,7 +6,7 @@ export class Game {
     map = Array.from(Array(6), _ => Array(7).fill(undefined));
     allDirs = ['WEST', 'SOUTH', 'EAST', 'NORTH']
     dirs;
-    position = {w: 6, h: 3} //6, 3
+    position = {w: 1, h: 0} //6, 3
     itemInBackpack = 0; //0
     milestones = 0; //0
     inputHandler = new InputHandler();
